@@ -1,14 +1,14 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
-const App = () => {
+const ChatScreen = () => {
   return (
     <View>
-      <Text>App</Text>
+      <Text>Chat SCreen</Text>
     </View>
   );
 };
 
-export default App;
+export default ChatScreen;
 
 const styles = StyleSheet.create({});
