@@ -1,10 +1,19 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Button, StyleSheet, Text, View} from 'react-native';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   return (
-    <View>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
       <Text>HomeScreen</Text>
+      <Button
+        title="Go to Chats"
+        onPress={() => navigation.navigate('ChatScreen')}
+      />
     </View>
   );
 };
