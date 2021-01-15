@@ -1,14 +1,24 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {Button, StyleSheet, Text, View} from 'react-native';
 
-const SignUpScreen = () => {
+const SignUpScreen = ({navigation}) => {
   return (
-    <View>
-      <Text>Sign Up Screen</Text>
+    <View style={styles.container}>
+      <Text> Welcome to Sign Up Screen</Text>
+      <Button
+        title="Sign In"
+        onPress={() => navigation.replace('SignInScreen')}
+      />
     </View>
   );
 };
 
 export default SignUpScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
