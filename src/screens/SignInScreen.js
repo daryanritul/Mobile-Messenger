@@ -150,15 +150,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.charlie,
   },
 
-  lowerContainer: {
-    flex: 1,
-    backgroundColor: Colors.three,
-  },
-  logoText: {
-    fontSize: responsiveFontSize(4),
-    fontWeight: 'bold',
-    color: Colors.one,
-  },
   btn: {
     width: '95%',
     backgroundColor: Colors.bravo,
@@ -170,23 +161,5 @@ const styles = StyleSheet.create({
     color: Colors.charlie,
     fontFamily: fonts.acuminB,
     fontSize: responsiveFontSize(2.1),
-  },
-  authTitle: {
-    fontSize: responsiveFontSize(1.8),
-    color: Colors.alpha,
-    fontFamily: fonts.openSansB,
-    fontFamily: fonts.acuminB,
-  },
-  authText: {
-    color: Colors.alphaDark,
-    fontSize: responsiveFontSize(1.6),
-    fontFamily: fonts.acuminR,
-  },
-  divider: {
-    borderBottomWidth: 1,
-    flex: 1,
-    margin: 5,
-    borderColor: Colors.alphaDark,
-    alignSelf: 'center',
   },
 });
