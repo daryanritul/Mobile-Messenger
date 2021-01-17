@@ -1,8 +1,8 @@
 export const Colors = {
   alpha: '#212121',
   alphaDark: '#000',
-  bravo: '#fe565b',
+  bravo: '#1B98F5',
   bravoDark: '#004d40',
   charlie: '#fff',
-  charlieDark: '#e0e0e0',
+  charlieDark: '#B3B6B7',
 };

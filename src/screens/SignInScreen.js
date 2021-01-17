@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Image,
+  Pressable,
   StyleSheet,
   Text,
   TextInput,
@@ -16,115 +17,125 @@ import {Colors} from '../Constants/Colors';
 
 import {Button, Form, Icon, Input, Item} from 'native-base';
 import {fonts} from '../Constants/Fonts';
+import AppInput from '../Components/AppInput';
 
 const SignInScreen = ({navigation}) => {
+  const [email, setEmail] = useState({
+    msg: 'Feild required',
+    value: '',
+  });
+  const [password, setPassword] = useState({
+    msg: 'Feild required',
+    value: '',
+  });
+  console.log(password.msg);
+
   return (
     <View style={styles.container}>
       <View
         style={{
           flex: 1,
+          width: responsiveWidth(85),
+          alignSelf: 'center',
           justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-        <Icon
-          name="chatbox-ellipses-sharp"
-          style={{
-            color: Colors.alpha,
-
-            fontSize: responsiveFontSize(8),
-          }}
-        />
-        <Text
-          style={{
-            fontSize: responsiveFontSize(3.5),
-            alignSelf: 'center',
-            fontFamily: fonts.exotB,
-            color: Colors.alpha,
-          }}>
-          MOBILE{' '}
-          <Text
-            style={{
-              color: Colors.bravo,
-            }}>
-            MESSENGER
-          </Text>
-        </Text>
-      </View>
-
-      <View
-        style={{
-          flex: 3,
         }}>
         <View
           style={{
             padding: 5,
-            alignItems: 'center',
-          }}>
-          <Text style={styles.authTitle}>LOGIN INTO YOUR ACCOUNT</Text>
-          <Text style={styles.authText}>
-            Fill in your details to login into your account
-          </Text>
-        </View>
-
-        <View style={styles.inputBox}>
-          <Icon name="mail" style={styles.inputIcon} />
-          <TextInput
-            placeholder="Email Address"
-            style={styles.input}
-            placeholderTextColor={Colors.alpha}
-          />
-        </View>
-        <View style={styles.inputBox}>
-          <Icon name="key" style={styles.inputIcon} />
-          <TextInput
-            placeholder="Password"
-            style={styles.input}
-            placeholderTextColor={Colors.alpha}
-            secureTextEntry={true}
-          />
-        </View>
-
-        <Button full style={styles.btn}>
-          <Text style={styles.btnText}>Log in</Text>
-        </Button>
-        <TouchableOpacity
-          style={{
-            padding: 10,
-            alignSelf: 'center',
+            alignItems: 'flex-start',
           }}>
           <Text
             style={{
-              color: Colors.alphaDark,
-              fontWeight: 'bold',
-              fontSize: responsiveFontSize(1.6),
+              fontSize: responsiveFontSize(3.7),
+              fontFamily: fonts.exotB,
+              color: Colors.alpha,
             }}>
-            Forgot Password?
+            Welcome!{' '}
+            <Text
+              style={{
+                color: Colors.bravo,
+              }}>
+              Back
+            </Text>
           </Text>
-        </TouchableOpacity>
+        </View>
+        <AppInput
+          icon="mail"
+          placeholder="Email"
+          value={email.value}
+          onChangeText={(text) => setEmail({...email, value: text})}
+          errorMsg={email.msg}
+        />
+        <AppInput
+          icon="key"
+          placeholder="Password"
+          value={password.value}
+          onChangeText={(text) => setPassword({...password, value: text})}
+          secureTextEntry={true}
+          errorMsg={password.msg}
+        />
+        <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
+          <Text style={styles.btnText}>SIGN IN</Text>
+        </Button>
+
         <View
           style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            width: responsiveWidth(80),
-            alignSelf: 'center',
+            alignItems: 'center',
+            margin: 15,
           }}>
-          <View style={styles.divider}></View>
           <Text
             style={{
-              color: Colors.alphaDark,
-              fontWeight: 'bold',
-              fontSize: responsiveFontSize(2.1),
+              color: Colors.alpha,
+              fontFamily: fonts.acuminBI,
+              fontSize: responsiveFontSize(1.5),
             }}>
-            OR
+            Forgot your login password?
           </Text>
-          <View style={styles.divider}></View>
+          <Pressable onPress={() => navigation.navigate('RecoverPassword')}>
+            <Text
+              style={{
+                color: Colors.alphaDark,
+                fontFamily: fonts.acuminI,
+                fontSize: responsiveFontSize(1.5),
+                textDecorationLine: 'underline',
+                padding: 5,
+              }}>
+              Recover your password.
+            </Text>
+          </Pressable>
         </View>
-        <Button
-          full
-          style={styles.btn}
-          onPress={() => navigation.navigate('SignUpScreen')}>
-          <Text style={styles.btnText}>Create Account</Text>
-        </Button>
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <Text
+          style={{
+            color: Colors.alphaDark,
+            fontFamily: fonts.acuminB,
+            padding: 20,
+            paddingRight: 0,
+            textAlign: 'center',
+            fontSize: responsiveFontSize(1.7),
+          }}>
+          Don't have an account?
+        </Text>
+        <Text
+          style={{
+            fontFamily: fonts.acuminB,
+            padding: 10,
+            paddingLeft: 0,
+            textAlign: 'center',
+            fontSize: responsiveFontSize(1.7),
+            textDecorationLine: 'underline',
+            color: Colors.bravo,
+          }}
+          onPress={() => navigation.replace('SignUpScreen')}>
+          {' '}
+          Sign up
+        </Text>
       </View>
     </View>
   );
@@ -149,46 +160,16 @@ const styles = StyleSheet.create({
     color: Colors.one,
   },
   btn: {
-    width: responsiveWidth(80),
+    width: '95%',
     backgroundColor: Colors.bravo,
     alignSelf: 'center',
     marginTop: 10,
-    elevation: 5,
-    borderRadius: 8,
+    borderRadius: 4,
   },
   btnText: {
     color: Colors.charlie,
-    fontWeight: 'bold',
+    fontFamily: fonts.acuminB,
     fontSize: responsiveFontSize(2.1),
-  },
-  input: {
-    backgroundColor: Colors.charlieDark,
-    color: Colors.alphaLow,
-    width: '85%',
-    fontFamily: fonts.acuminR,
-    borderRadius: 8,
-    fontSize: responsiveFontSize(1.6),
-    alignSelf: 'center',
-  },
-  inputBox: {
-    flexDirection: 'row',
-    width: responsiveWidth(80),
-    alignSelf: 'center',
-    elevation: 5,
-    borderRadius: 8,
-    backgroundColor: Colors.charlieDark,
-    marginVertical: 5,
-  },
-  inputIcon: {
-    width: '15%',
-    backgroundColor: Colors.alpha,
-
-    color: Colors.charlieDark,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    fontSize: responsiveFontSize(3),
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
   },
   authTitle: {
     fontSize: responsiveFontSize(1.8),
