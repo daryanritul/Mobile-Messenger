@@ -11,7 +11,7 @@ const App = () => {
     <NavigationContainer>
       <AuthNavigator />
       {/* <AppNavigator /> */}
-      <StatusBar backgroundColor={Colors.alpha} />
+      <StatusBar backgroundColor={Colors.bravo} barStyle="dark-content" />
     </NavigationContainer>
   );
 };
