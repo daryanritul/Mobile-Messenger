@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: responsiveWidth(80),
     alignSelf: 'center',
-    marginVertical: 8,
+    marginVertical: 5,
   },
   inputError: {
     fontSize: responsiveFontSize(1.2),
