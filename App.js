@@ -1,15 +1,17 @@
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StatusBar, StyleSheet, Text, View} from 'react-native';
 
 import {NavigationContainer} from '@react-navigation/native';
 import AuthNavigator from './src/Navigation/AuthNavigator';
 import AppNavigator from './src/Navigation/AppNavigator';
+import {Colors} from './src/Constants/Colors';
 
 const App = () => {
   return (
     <NavigationContainer>
-      {/* <AuthNavigator /> */}
-      <AppNavigator />
+      <AuthNavigator />
+      {/* <AppNavigator /> */}
+      <StatusBar backgroundColor={Colors.bravo} barStyle="dark-content" />
     </NavigationContainer>
   );
 };
