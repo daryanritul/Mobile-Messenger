@@ -15,6 +15,7 @@ import {
 import {Colors} from '../Constants/Colors';
 
 import {Button, Form, Icon, Input, Item} from 'native-base';
+import {fonts} from '../Constants/Fonts';
 
 const SignInScreen = ({navigation}) => {
   return (
@@ -35,9 +36,9 @@ const SignInScreen = ({navigation}) => {
         />
         <Text
           style={{
-            fontSize: responsiveFontSize(3),
-            fontWeight: 'bold',
+            fontSize: responsiveFontSize(3.5),
             alignSelf: 'center',
+            fontFamily: fonts.exotB,
             color: Colors.alpha,
           }}>
           MOBILE{' '}
@@ -163,8 +164,8 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Colors.charlieDark,
     color: Colors.alphaLow,
-    fontWeight: 'bold',
     width: '85%',
+    fontFamily: fonts.acuminR,
     borderRadius: 8,
     fontSize: responsiveFontSize(1.6),
     alignSelf: 'center',
@@ -191,12 +192,14 @@ const styles = StyleSheet.create({
   },
   authTitle: {
     fontSize: responsiveFontSize(1.8),
-    fontWeight: 'bold',
     color: Colors.alpha,
+    fontFamily: fonts.openSansB,
+    fontFamily: fonts.acuminB,
   },
   authText: {
     color: Colors.alphaDark,
     fontSize: responsiveFontSize(1.6),
+    fontFamily: fonts.acuminR,
   },
   divider: {
     borderBottomWidth: 1,
