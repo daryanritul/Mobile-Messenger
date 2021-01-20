@@ -13,11 +13,10 @@ const authStart = (state) => {
   };
 };
 
-const authSucess = (state, payload) => {
+const authSucess = (state) => {
   return {
     ...state,
     error: false,
-    user: payload,
   };
 };
 
@@ -35,13 +34,20 @@ const authEnd = (state) => {
   };
 };
 
+const setUser = (state, payload) => {
+  return {
+    ...state,
+    user: payload,
+  };
+};
+
 export default (state = initialState, {type, payload}) => {
   switch (type) {
     case actions.AUTH_START:
       return authStart(state);
 
     case actions.AUTH_SUCCESS:
-      return authSucess(state, payload);
+      return authSucess(state);
 
     case actions.AUTH_FAIL:
       return authFail(state, payload);
@@ -49,6 +55,8 @@ export default (state = initialState, {type, payload}) => {
     case actions.AUTH_END:
       return authEnd(state);
 
+    case actions.SET_USER:
+      return setUser(state, payload);
     default:
       return state;
   }

@@ -21,9 +21,9 @@ import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
 
 const SignUpScreen = ({navigation}) => {
-  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   return (
     <View style={styles.container}>
@@ -54,13 +54,6 @@ const SignUpScreen = ({navigation}) => {
             </Text>
           </Text>
         </View>
-        <AppInput
-          icon="person"
-          placeholder="User Name"
-          value={userName}
-          onChangeText={(text) => setUserName(text)}
-        />
-        <ErrorMsg errorMsg="" />
 
         <AppInput
           icon="mail"
@@ -73,8 +66,17 @@ const SignUpScreen = ({navigation}) => {
         <AppInput
           icon="key"
           placeholder="Password"
-          value={password.value}
+          value={password}
           onChangeText={(text) => setPassword(text)}
+          secureTextEntry={true}
+        />
+        <ErrorMsg errorMsg="" />
+
+        <AppInput
+          icon="key"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text)}
           secureTextEntry={true}
         />
         <ErrorMsg errorMsg="" />
