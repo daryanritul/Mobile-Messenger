@@ -19,11 +19,19 @@ import {Button} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
+import {
+  confirmPasswordValidator,
+  emailValidator,
+  passwordValidator,
+} from '../Constants/Validator';
 
 const SignUpScreen = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const validEmail = emailValidator(email);
+  const validPass = passwordValidator(password);
+  const confrmPass = confirmPasswordValidator(password, confirmPassword);
 
   return (
     <View style={styles.container}>
@@ -60,8 +68,9 @@ const SignUpScreen = ({navigation}) => {
           placeholder="Email"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          valid={!validEmail}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validEmail} />
 
         <AppInput
           icon="key"
@@ -69,8 +78,9 @@ const SignUpScreen = ({navigation}) => {
           value={password}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
+          valid={!validPass}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validPass} />
 
         <AppInput
           icon="key"
@@ -78,10 +88,23 @@ const SignUpScreen = ({navigation}) => {
           value={confirmPassword}
           onChangeText={(text) => setConfirmPassword(text)}
           secureTextEntry={true}
+          valid={!confrmPass}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={confrmPass} />
 
-        <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
+        <Button
+          full
+          style={[
+            styles.btn,
+            {
+              backgroundColor:
+                validEmail || validPass || confrmPass
+                  ? Colors.bravoDark
+                  : Colors.bravo,
+            },
+          ]}
+          disabled={validEmail || validPass || confrmPass ? true : false}
+          onPress={() => console.log('SIGN IN')}>
           <Text style={styles.btnText}>SIGN UP</Text>
         </Button>
       </View>
@@ -132,11 +155,9 @@ const styles = StyleSheet.create({
 
   btn: {
     width: '95%',
-    backgroundColor: Colors.bravo,
     alignSelf: 'center',
     marginTop: 10,
     elevation: 0,
-
     borderRadius: 4,
   },
   btnText: {

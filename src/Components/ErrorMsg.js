@@ -16,7 +16,7 @@ export default ErrorMsg;
 
 const styles = StyleSheet.create({
   inputError: {
-    fontSize: responsiveFontSize(1.2),
+    fontSize: responsiveFontSize(1.35),
     color: 'red',
     textAlign: 'center',
     fontFamily: fonts.acuminI,

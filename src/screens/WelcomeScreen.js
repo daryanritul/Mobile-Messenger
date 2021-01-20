@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     borderRadius: 4,
     marginVertical: 5,
+    elevation: 0,
   },
   btnText: {
     color: Colors.charlie,

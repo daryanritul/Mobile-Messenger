@@ -20,9 +20,12 @@ import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
 
+import {emailValidator} from '../Constants/Validator';
+
 const SignInScreen = ({navigation}) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const validEmail = emailValidator(email);
 
   return (
     <View style={styles.container}>
@@ -58,8 +61,9 @@ const SignInScreen = ({navigation}) => {
           placeholder="Email"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          valid={!validEmail}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validEmail} />
 
         <AppInput
           icon="key"
@@ -67,9 +71,19 @@ const SignInScreen = ({navigation}) => {
           value={password}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
+          valid={!validEmail}
         />
         <ErrorMsg errorMsg="" />
-        <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
+        <Button
+          full
+          style={[
+            styles.btn,
+            {
+              backgroundColor: validEmail ? Colors.bravoDark : Colors.bravo,
+            },
+          ]}
+          disabled={validEmail ? true : false}
+          onPress={() => console.log('SIGN IN')}>
           <Text style={styles.btnText}>SIGN IN</Text>
         </Button>
 
