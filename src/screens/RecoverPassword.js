@@ -18,6 +18,7 @@ import {Colors} from '../Constants/Colors';
 import {Button, Form, Icon, Input, Item} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
+import ErrorMsg from '../Components/ErrorMsg';
 
 const RecoverPassword = ({navigation}) => {
   const [email, setEmail] = useState({
@@ -54,6 +55,7 @@ const RecoverPassword = ({navigation}) => {
           onChangeText={(text) => setEmail({...email, value: text})}
           errorMsg={email.msg}
         />
+        <ErrorMsg errorMsg="" />
 
         <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
           <Text style={styles.btnText}>Send Recovery Email</Text>

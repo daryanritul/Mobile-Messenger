@@ -15,24 +15,15 @@ import {
 } from 'react-native-responsive-dimensions';
 import {Colors} from '../Constants/Colors';
 
-import {Button, Form, Icon, Input, Item} from 'native-base';
+import {Button} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
+import ErrorMsg from '../Components/ErrorMsg';
 
 const SignUpScreen = ({navigation}) => {
-  const [userName, setUserName] = useState({
-    msg: 'Feild required',
-    value: '',
-  });
-  const [email, setEmail] = useState({
-    msg: 'Feild required',
-    value: '',
-  });
-  const [password, setPassword] = useState({
-    msg: 'Feild required',
-    value: '',
-  });
-  console.log(password.msg);
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   return (
     <View style={styles.container}>
@@ -66,25 +57,28 @@ const SignUpScreen = ({navigation}) => {
         <AppInput
           icon="person"
           placeholder="User Name"
-          value={userName.value}
-          onChangeText={(text) => setUserName({...userName, value: text})}
-          errorMsg={userName.msg}
+          value={userName}
+          onChangeText={(text) => setUserName(text)}
         />
+        <ErrorMsg errorMsg="" />
+
         <AppInput
           icon="mail"
           placeholder="Email"
-          value={email.value}
-          onChangeText={(text) => setEmail({...email, value: text})}
-          errorMsg={email.msg}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
+        <ErrorMsg errorMsg="" />
+
         <AppInput
           icon="key"
           placeholder="Password"
           value={password.value}
-          onChangeText={(text) => setPassword({...password, value: text})}
+          onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
-          errorMsg={password.msg}
         />
+        <ErrorMsg errorMsg="" />
+
         <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
           <Text style={styles.btnText}>SIGN UP</Text>
         </Button>
@@ -139,6 +133,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bravo,
     alignSelf: 'center',
     marginTop: 10,
+    elevation: 0,
+
     borderRadius: 4,
   },
   btnText: {

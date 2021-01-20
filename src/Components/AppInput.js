@@ -17,7 +17,7 @@ import {Colors} from '../Constants/Colors';
 import {Button, Form, Icon, Input, Item} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 
-const AppInput = ({icon, iconTtype, errorMsg, length, ...otherProps}) => {
+const AppInput = ({icon, iconTtype, valid, length, ...otherProps}) => {
   return (
     <View style={styles.inputContainer}>
       <View style={styles.inputBox}>
@@ -27,23 +27,15 @@ const AppInput = ({icon, iconTtype, errorMsg, length, ...otherProps}) => {
           {...otherProps}
           placeholderTextColor={Colors.charlieDark}
         />
-        {!errorMsg ? (
-          <Icon
-            name="checkmark-circle"
-            style={[styles.inputIcon, {color: 'green'}]}
-          />
-        ) : (
-          <Icon
-            name="alert-circle"
-            style={[styles.inputIcon, {color: 'red'}]}
-          />
-        )}
+
+        <Icon
+          name="checkmark-circle"
+          style={[
+            styles.inputIcon,
+            {color: !valid ? Colors.charlieDark : 'green'},
+          ]}
+        />
       </View>
-      {errorMsg ? (
-        <Text style={styles.inputError}>{errorMsg}</Text>
-      ) : (
-        <Text style={styles.inputError}></Text>
-      )}
     </View>
   );
 };
@@ -61,7 +53,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     width: responsiveWidth(80),
     alignSelf: 'center',
-    marginVertical: 5,
+    marginVertical: 2,
   },
   inputError: {
     fontSize: responsiveFontSize(1.2),

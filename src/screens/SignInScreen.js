@@ -18,17 +18,11 @@ import {Colors} from '../Constants/Colors';
 import {Button, Form, Icon, Input, Item} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
+import ErrorMsg from '../Components/ErrorMsg';
 
 const SignInScreen = ({navigation}) => {
-  const [email, setEmail] = useState({
-    msg: 'Feild required',
-    value: '',
-  });
-  const [password, setPassword] = useState({
-    msg: 'Feild required',
-    value: '',
-  });
-  console.log(password.msg);
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
 
   return (
     <View style={styles.container}>
@@ -62,18 +56,19 @@ const SignInScreen = ({navigation}) => {
         <AppInput
           icon="mail"
           placeholder="Email"
-          value={email.value}
-          onChangeText={(text) => setEmail({...email, value: text})}
-          errorMsg={email.msg}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
         />
+        <ErrorMsg errorMsg="" />
+
         <AppInput
           icon="key"
           placeholder="Password"
-          value={password.value}
-          onChangeText={(text) => setPassword({...password, value: text})}
+          value={password}
+          onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
-          errorMsg={password.msg}
         />
+        <ErrorMsg errorMsg="" />
         <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
           <Text style={styles.btnText}>SIGN IN</Text>
         </Button>
@@ -156,6 +151,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 10,
     borderRadius: 4,
+    elevation: 0,
   },
   btnText: {
     color: Colors.charlie,
