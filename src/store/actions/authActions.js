@@ -32,7 +32,9 @@ export const emailVarification = () => async (dispatch) => {
   try {
     const user = auth().currentUser;
     await user.sendEmailVerification();
-  } catch (err) {}
+  } catch (err) {
+    console.log({err});
+  }
 };
 
 export const signOut = () => async (dispatch) => {

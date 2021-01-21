@@ -4,10 +4,6 @@ const initialState = {
   user: null,
   error: null,
   loading: false,
-  verifyEmail: {
-    error: null,
-    loading: false,
-  },
 };
 
 const authStart = (state) => {
