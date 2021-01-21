@@ -8,7 +8,11 @@ import AppNavigator from './src/Navigation/AppNavigator';
 import {Colors} from './src/Constants/Colors';
 
 import {connect, useDispatch} from 'react-redux';
-import {AUTH_SUCCESS, SET_USER} from './src/store/actions/actions.types';
+import {
+  AUTH_SUCCESS,
+  CLEAN_UP,
+  SET_USER,
+} from './src/store/actions/actions.types';
 
 import auth from '@react-native-firebase/auth';
 
@@ -23,12 +27,11 @@ const App = ({authState}) => {
       });
     } else {
       dispatch({
-        type: SET_USER,
-        payload: null,
+        type: CLEAN_UP,
       });
     }
   };
-
+  console.log(authState);
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber;

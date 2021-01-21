@@ -17,7 +17,6 @@ export const signUp = (data) => async (dispatch) => {
         });
       });
   } catch (error) {
-    console.log(error);
     dispatch({
       type: actions.AUTH_FAIL,
       payload: error,
@@ -26,6 +25,24 @@ export const signUp = (data) => async (dispatch) => {
   dispatch({
     type: actions.AUTH_END,
   });
+};
+
+export const signIn = (data) => async (dispatch) => {
+  const {email, password} = data;
+  dispatch({
+    type: actions.AUTH_START,
+  });
+  try {
+    await auth().signInWithEmailAndPassword(email, password);
+    dispatch({
+      type: actions.AUTH_SUCCESS,
+    });
+  } catch (err) {
+    dispatch({
+      type: actions.AUTH_FAIL,
+      payload: error,
+    });
+  }
 };
 
 export const emailVarification = () => async (dispatch) => {
@@ -55,8 +72,4 @@ export const reloadUser = () => async (dispatch) => {
       });
     }
   });
-};
-
-export const signIn = (data) => async (dispatch) => {
-  console.log({data});
 };

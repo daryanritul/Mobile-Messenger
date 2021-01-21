@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import {
   responsiveFontSize,
@@ -21,8 +22,10 @@ import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
 
 import {emailValidator} from '../Constants/Validator';
+import {signIn} from '../store/actions';
+import {connect} from 'react-redux';
 
-const SignInScreen = ({navigation}) => {
+const SignInScreen = ({navigation, signIn, isLoading, error}) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const validEmail = emailValidator(email);
@@ -71,7 +74,7 @@ const SignInScreen = ({navigation}) => {
           value={password}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
-          valid={!validEmail}
+          valid={!validEmail && password}
         />
         <ErrorMsg errorMsg="" />
         <Button
@@ -79,12 +82,17 @@ const SignInScreen = ({navigation}) => {
           style={[
             styles.btn,
             {
-              backgroundColor: validEmail ? Colors.bravoDark : Colors.bravo,
+              backgroundColor:
+                validEmail || !password ? Colors.bravoDark : Colors.bravo,
             },
           ]}
-          disabled={validEmail ? true : false}
-          onPress={() => console.log('SIGN IN')}>
-          <Text style={styles.btnText}>SIGN IN</Text>
+          disabled={validEmail || !password ? true : false}
+          onPress={() => signIn({email, password})}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={Colors.charlie} />
+          ) : (
+            <Text style={styles.btnText}>SIGN IN</Text>
+          )}
         </Button>
 
         <View
@@ -150,7 +158,15 @@ const SignInScreen = ({navigation}) => {
   );
 };
 
-export default SignInScreen;
+const mapDispatchToProps = {
+  signIn: (data) => signIn(data),
+};
+
+const mapStateToProps = (state) => ({
+  isLoading: state.auth.loading,
+  error: state.auth.error,
+});
+export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);
 
 const styles = StyleSheet.create({
   container: {

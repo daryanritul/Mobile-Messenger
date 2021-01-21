@@ -6,6 +6,15 @@ const initialState = {
   loading: false,
 };
 
+const cleanUp = (state) => {
+  return {
+    ...state,
+    user: null,
+    error: null,
+    loading: false,
+  };
+};
+
 const authStart = (state) => {
   return {
     ...state,
@@ -58,6 +67,8 @@ export default (state = initialState, {type, payload}) => {
     case actions.SET_USER:
       return setUser(state, payload);
 
+    case actions.CLEAN_UP:
+      return cleanUp(state);
     default:
       return state;
   }
