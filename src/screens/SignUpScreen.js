@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   View,
 } from 'react-native';
 import {
@@ -19,11 +20,22 @@ import {Button} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
+import {
+  confirmPasswordValidator,
+  emailValidator,
+  passwordValidator,
+} from '../Constants/Validator';
 
-const SignUpScreen = ({navigation}) => {
-  const [userName, setUserName] = useState('');
+import {signUp} from '../store/actions';
+import {connect} from 'react-redux';
+
+const SignUpScreen = ({navigation, signUp, isLoading, error}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const validEmail = emailValidator(email);
+  const validPass = passwordValidator(password);
+  const confrmPass = confirmPasswordValidator(password, confirmPassword);
 
   return (
     <View style={styles.container}>
@@ -54,34 +66,61 @@ const SignUpScreen = ({navigation}) => {
             </Text>
           </Text>
         </View>
-        <AppInput
-          icon="person"
-          placeholder="User Name"
-          value={userName}
-          onChangeText={(text) => setUserName(text)}
-        />
-        <ErrorMsg errorMsg="" />
 
         <AppInput
           icon="mail"
           placeholder="Email"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          valid={!validEmail}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validEmail} />
 
         <AppInput
           icon="key"
           placeholder="Password"
-          value={password.value}
+          value={password}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
+          valid={!validPass}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validPass} />
 
-        <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
-          <Text style={styles.btnText}>SIGN UP</Text>
+        <AppInput
+          icon="key"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChangeText={(text) => setConfirmPassword(text)}
+          secureTextEntry={true}
+          valid={!confrmPass}
+        />
+        <ErrorMsg errorMsg={confrmPass} />
+
+        <Button
+          full
+          style={[
+            styles.btn,
+            {
+              backgroundColor:
+                validEmail || validPass || confrmPass
+                  ? Colors.bravoDark
+                  : Colors.bravo,
+            },
+          ]}
+          disabled={validEmail || validPass || confrmPass ? true : false}
+          onPress={() =>
+            signUp({
+              email: email,
+              password: password,
+            })
+          }>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={Colors.charlie} />
+          ) : (
+            <Text style={styles.btnText}>SIGN UP</Text>
+          )}
         </Button>
+        <ErrorMsg errorMsg={error ? error : ''} />
       </View>
       <View
         style={{
@@ -119,7 +158,15 @@ const SignUpScreen = ({navigation}) => {
   );
 };
 
-export default SignUpScreen;
+const mapDispatchToProps = {
+  signUp: (data) => signUp(data),
+};
+
+const mapStateToProps = (state) => ({
+  isLoading: state.auth.loading,
+  error: state.auth.error,
+});
+export default connect(mapStateToProps, mapDispatchToProps)(SignUpScreen);
 
 const styles = StyleSheet.create({
   container: {
@@ -130,11 +177,9 @@ const styles = StyleSheet.create({
 
   btn: {
     width: '95%',
-    backgroundColor: Colors.bravo,
     alignSelf: 'center',
     marginTop: 10,
     elevation: 0,
-
     borderRadius: 4,
   },
   btnText: {

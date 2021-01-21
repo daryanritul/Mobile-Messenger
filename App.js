@@ -1,21 +1,60 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {StatusBar, StyleSheet, Text, View} from 'react-native';
 
 import {NavigationContainer} from '@react-navigation/native';
 import AuthNavigator from './src/Navigation/AuthNavigator';
+import EmailVarificationScreen from './src/screens/EmailVarificationScreen';
 import AppNavigator from './src/Navigation/AppNavigator';
 import {Colors} from './src/Constants/Colors';
 
-const App = () => {
+import {connect, useDispatch} from 'react-redux';
+import {
+  AUTH_SUCCESS,
+  CLEAN_UP,
+  SET_USER,
+} from './src/store/actions/actions.types';
+
+import auth from '@react-native-firebase/auth';
+
+const App = ({authState}) => {
+  const dispatch = useDispatch();
+
+  const onAuthStateChanged = (user) => {
+    if (user) {
+      dispatch({
+        type: SET_USER,
+        payload: user,
+      });
+    } else {
+      dispatch({
+        type: CLEAN_UP,
+      });
+    }
+  };
+  console.log(authState);
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber;
+  }, []);
+
   return (
     <NavigationContainer>
-      <AuthNavigator />
-      {/* <AppNavigator /> */}
+      {authState.user && !authState.user.emailVerified ? (
+        <EmailVarificationScreen />
+      ) : authState.user && authState.user.emailVerified ? (
+        <AppNavigator />
+      ) : (
+        <AuthNavigator />
+      )}
       <StatusBar backgroundColor={Colors.bravo} barStyle="dark-content" />
     </NavigationContainer>
   );
 };
 
-export default App;
+const mapStateToProps = (state) => ({
+  authState: state.auth,
+});
 
-const styles = StyleSheet.create({});
+const mapDispatchToProps = {};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

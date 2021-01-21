@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import {
   responsiveFontSize,
@@ -20,9 +21,14 @@ import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
 
-const SignInScreen = ({navigation}) => {
+import {emailValidator} from '../Constants/Validator';
+import {signIn} from '../store/actions';
+import {connect} from 'react-redux';
+
+const SignInScreen = ({navigation, signIn, isLoading, error}) => {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const validEmail = emailValidator(email);
 
   return (
     <View style={styles.container}>
@@ -58,8 +64,9 @@ const SignInScreen = ({navigation}) => {
           placeholder="Email"
           value={email}
           onChangeText={(text) => setEmail(text)}
+          valid={!validEmail}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validEmail} />
 
         <AppInput
           icon="key"
@@ -67,10 +74,25 @@ const SignInScreen = ({navigation}) => {
           value={password}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
+          valid={!validEmail && password}
         />
         <ErrorMsg errorMsg="" />
-        <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
-          <Text style={styles.btnText}>SIGN IN</Text>
+        <Button
+          full
+          style={[
+            styles.btn,
+            {
+              backgroundColor:
+                validEmail || !password ? Colors.bravoDark : Colors.bravo,
+            },
+          ]}
+          disabled={validEmail || !password ? true : false}
+          onPress={() => signIn({email, password})}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={Colors.charlie} />
+          ) : (
+            <Text style={styles.btnText}>SIGN IN</Text>
+          )}
         </Button>
 
         <View
@@ -136,7 +158,15 @@ const SignInScreen = ({navigation}) => {
   );
 };
 
-export default SignInScreen;
+const mapDispatchToProps = {
+  signIn: (data) => signIn(data),
+};
+
+const mapStateToProps = (state) => ({
+  isLoading: state.auth.loading,
+  error: state.auth.error,
+});
+export default connect(mapStateToProps, mapDispatchToProps)(SignInScreen);
 
 const styles = StyleSheet.create({
   container: {
