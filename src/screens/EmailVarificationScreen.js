@@ -1,25 +1,21 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {
   responsiveFontSize,
-  responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
 import {Colors} from '../Constants/Colors';
 
-import {Button, Form, Icon, Input, Item, Spinner} from 'native-base';
+import {Button, Spinner} from 'native-base';
 import {fonts} from '../Constants/Fonts';
-import {set} from 'react-native-reanimated';
+import {emailVarification, reloadUser} from '../store/actions/authActions';
+import {connect} from 'react-redux';
 
-const EmailVarificationScreen = () => {
+const EmailVarificationScreen = ({
+  emailVarification,
+  reloadUser,
+  emailState,
+}) => {
   const [resend, setResend] = useState(true);
 
   const [timeLeft, setTimeLeft] = useState(60);
@@ -36,6 +32,7 @@ const EmailVarificationScreen = () => {
     // component re-renders
     const intervalId = setInterval(() => {
       setTimeLeft(timeLeft - 1);
+      reloadUser();
     }, 1000);
 
     // clear interval on re-render to avoid memory leaks
@@ -43,6 +40,12 @@ const EmailVarificationScreen = () => {
     // add timeLeft as a dependency to re-rerun the effect
     // when we update it
   }, [timeLeft, resend]);
+
+  useEffect(() => {
+    if (resend) {
+      emailVarification();
+    }
+  }, [resend]);
 
   return (
     <View style={styles.container}>
@@ -77,8 +80,8 @@ const EmailVarificationScreen = () => {
             style={{
               color: Colors.alphaDark,
               textAlign: 'center',
-              fontFamily: fonts.acuminI,
-              fontSize: responsiveFontSize(1.5),
+              fontFamily: fonts.acuminBI,
+              fontSize: responsiveFontSize(1.6),
               textDecorationLine: 'underline',
               padding: 5,
             }}>
@@ -89,6 +92,7 @@ const EmailVarificationScreen = () => {
             account to varify your email and continue the regestration process.
           </Text>
         </View>
+
         <Button
           full
           style={styles.btn}
@@ -114,7 +118,19 @@ const EmailVarificationScreen = () => {
   );
 };
 
-export default EmailVarificationScreen;
+const mapDispatchToProps = {
+  emailVarification: () => emailVarification(),
+  reloadUser: () => reloadUser(),
+};
+
+const mapStateToProps = (state) => ({
+  emailState: state.auth.verifyEmail,
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(EmailVarificationScreen);
 
 const styles = StyleSheet.create({
   container: {
@@ -157,7 +173,7 @@ const styles = StyleSheet.create({
     width: responsiveWidth(90),
     backgroundColor: Colors.bravo,
     alignSelf: 'center',
-    margin: 10,
+    margin: 5,
     marginBottom: 0,
     elevation: 0,
     borderRadius: 4,

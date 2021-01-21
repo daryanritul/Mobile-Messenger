@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   View,
 } from 'react-native';
 import {
@@ -25,7 +26,10 @@ import {
   passwordValidator,
 } from '../Constants/Validator';
 
-const SignUpScreen = ({navigation}) => {
+import {signUp} from '../store/actions';
+import {connect} from 'react-redux';
+
+const SignUpScreen = ({navigation, signUp, isLoading, error}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -104,9 +108,19 @@ const SignUpScreen = ({navigation}) => {
             },
           ]}
           disabled={validEmail || validPass || confrmPass ? true : false}
-          onPress={() => console.log('SIGN IN')}>
-          <Text style={styles.btnText}>SIGN UP</Text>
+          onPress={() =>
+            signUp({
+              email: email,
+              password: password,
+            })
+          }>
+          {isLoading ? (
+            <ActivityIndicator size="small" color={Colors.charlie} />
+          ) : (
+            <Text style={styles.btnText}>SIGN UP</Text>
+          )}
         </Button>
+        <ErrorMsg errorMsg={error ? error : ''} />
       </View>
       <View
         style={{
@@ -144,7 +158,15 @@ const SignUpScreen = ({navigation}) => {
   );
 };
 
-export default SignUpScreen;
+const mapDispatchToProps = {
+  signUp: (data) => signUp(data),
+};
+
+const mapStateToProps = (state) => ({
+  isLoading: state.auth.loading,
+  error: state.auth.error,
+});
+export default connect(mapStateToProps, mapDispatchToProps)(SignUpScreen);
 
 const styles = StyleSheet.create({
   container: {

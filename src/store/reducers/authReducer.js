@@ -4,6 +4,10 @@ const initialState = {
   user: null,
   error: null,
   loading: false,
+  verifyEmail: {
+    error: null,
+    loading: false,
+  },
 };
 
 const authStart = (state) => {
@@ -57,6 +61,7 @@ export default (state = initialState, {type, payload}) => {
 
     case actions.SET_USER:
       return setUser(state, payload);
+
     default:
       return state;
   }
