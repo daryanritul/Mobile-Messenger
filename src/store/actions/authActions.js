@@ -62,6 +62,19 @@ export const signOut = () => async (dispatch) => {
   }
 };
 
+export const recoverPassword = (email) => async (dispatch) => {
+  dispatch({type: actions.RECOVERY_START});
+  try {
+    await auth()
+      .sendPasswordResetEmail(email)
+      .then(() => {
+        dispatch({type: actions.RECOVERY_SUCCESS});
+      });
+  } catch (err) {
+    dispatch({type: actions.RECOVERY_FAIL, payload: err.message});
+  }
+};
+
 export const reloadUser = () => async (dispatch) => {
   const user = auth().currentUser;
   await user.reload().then((ok) => {

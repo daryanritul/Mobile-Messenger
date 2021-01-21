@@ -4,6 +4,10 @@ const initialState = {
   user: null,
   error: null,
   loading: false,
+  recoverPassword: {
+    loading: false,
+    error: null,
+  },
 };
 
 const cleanUp = (state) => {
@@ -12,6 +16,11 @@ const cleanUp = (state) => {
     user: null,
     error: null,
     loading: false,
+    recoverPassword: {
+      ...state.recoverPassword,
+      loading: false,
+      error: null,
+    },
   };
 };
 
@@ -50,6 +59,35 @@ const setUser = (state, payload) => {
   };
 };
 
+const recoveryStart = (state) => {
+  return {
+    ...state,
+    recoverPassword: {...state.recoverPassword, loading: true},
+  };
+};
+
+const recoverySuccess = (state) => {
+  return {
+    ...state,
+    recoverPassword: {
+      ...state.recoverPassword,
+      loading: false,
+      error: false,
+    },
+  };
+};
+
+const recoveryFail = (state, payload) => {
+  return {
+    ...state,
+    recoverPassword: {
+      ...state.recoverPassword,
+      loading: false,
+      error: payload,
+    },
+  };
+};
+
 export default (state = initialState, {type, payload}) => {
   switch (type) {
     case actions.AUTH_START:
@@ -69,6 +107,15 @@ export default (state = initialState, {type, payload}) => {
 
     case actions.CLEAN_UP:
       return cleanUp(state);
+
+    case actions.RECOVERY_START:
+      return recoveryStart(state);
+
+    case actions.RECOVERY_SUCCESS:
+      return recoverySuccess(state);
+
+    case actions.RECOVERY_FAIL:
+      return recoveryFail(state, payload);
     default:
       return state;
   }

@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
   View,
 } from 'react-native';
 import {
@@ -19,12 +20,17 @@ import {Button, Form, Icon, Input, Item} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
+import {recoverPassword} from '../store/actions/authActions';
+import {connect} from 'react-redux';
+import {emailValidator} from '../Constants/Validator';
 
-const RecoverPassword = ({navigation}) => {
-  const [email, setEmail] = useState({
-    msg: 'Feild required',
-    value: '',
-  });
+const RecoverPassword = ({navigation, recoverPassword, recoverState}) => {
+  const [email, setEmail] = useState();
+
+  const validEmail = emailValidator(email);
+
+  console.log(recoverState);
+
   return (
     <View style={styles.container}>
       <View
@@ -50,16 +56,25 @@ const RecoverPassword = ({navigation}) => {
         </View>
         <AppInput
           icon="mail"
-          placeholder="Email"
-          value={email.value}
-          onChangeText={(text) => setEmail({...email, value: text})}
-          errorMsg={email.msg}
+          placeholder="Email Address"
+          value={email}
+          onChangeText={(text) => setEmail(text)}
+          valid={!validEmail}
         />
-        <ErrorMsg errorMsg="" />
+        <ErrorMsg errorMsg={validEmail} />
 
-        <Button full style={styles.btn} onPress={() => console.log('SIGN IN')}>
-          <Text style={styles.btnText}>Send Recovery Email</Text>
+        <Button
+          full
+          style={styles.btn}
+          disabled={validEmail ? true : false}
+          onPress={() => recoverPassword(email)}>
+          {recoverState.loading ? (
+            <ActivityIndicator size="small" color={Colors.charlie} />
+          ) : (
+            <Text style={styles.btnText}>Send Recovery Email</Text>
+          )}
         </Button>
+        <ErrorMsg errorMsg={recoverState.error ? recoverState.error : ' '} />
       </View>
       <View
         style={{
@@ -97,7 +112,15 @@ const RecoverPassword = ({navigation}) => {
   );
 };
 
-export default RecoverPassword;
+const mapDispatchToProps = {
+  recoverPassword: (email) => recoverPassword(email),
+};
+
+const mapStateToProps = (state) => ({
+  recoverState: state.auth.recoverPassword,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(RecoverPassword);
 
 const styles = StyleSheet.create({
   container: {
@@ -109,7 +132,8 @@ const styles = StyleSheet.create({
     width: '95%',
     backgroundColor: Colors.bravo,
     alignSelf: 'center',
-    marginTop: 10,
+    margin: 5,
+    elevation: 0,
     borderRadius: 4,
   },
   btnText: {
