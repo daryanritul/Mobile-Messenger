@@ -8,6 +8,11 @@ const initialState = {
     loading: false,
     error: null,
   },
+  profileData: {
+    data: null,
+    error: null,
+    loading: false,
+  },
 };
 
 const cleanUp = (state) => {

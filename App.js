@@ -5,6 +5,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import AuthNavigator from './src/Navigation/AuthNavigator';
 import EmailVarificationScreen from './src/screens/EmailVarificationScreen';
 import AppNavigator from './src/Navigation/AppNavigator';
+import UpdateProfileScreen from './src/screens/UpdateProfileScreen';
 import {Colors} from './src/Constants/Colors';
 
 import {connect, useDispatch} from 'react-redux';
@@ -42,7 +43,11 @@ const App = ({authState}) => {
       {authState.user && !authState.user.emailVerified ? (
         <EmailVarificationScreen />
       ) : authState.user && authState.user.emailVerified ? (
-        <AppNavigator />
+        authState.profileData.data ? (
+          <AppNavigator />
+        ) : (
+          <UpdateProfileScreen />
+        )
       ) : (
         <AuthNavigator />
       )}
