@@ -80,6 +80,7 @@ const SignUpScreen = ({navigation, signUp, isLoading, error}) => {
           icon="key"
           placeholder="Password"
           value={password}
+          editable={!isLoading}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
           valid={!validPass}
@@ -90,6 +91,7 @@ const SignUpScreen = ({navigation, signUp, isLoading, error}) => {
           icon="key"
           placeholder="Confirm Password"
           value={confirmPassword}
+          editable={!isLoading}
           onChangeText={(text) => setConfirmPassword(text)}
           secureTextEntry={true}
           valid={!confrmPass}
@@ -115,7 +117,7 @@ const SignUpScreen = ({navigation, signUp, isLoading, error}) => {
             })
           }>
           {isLoading ? (
-            <ActivityIndicator size="small" color={Colors.charlie} />
+            <Text style={styles.btnText}>Signing Up . . .</Text>
           ) : (
             <Text style={styles.btnText}>SIGN UP</Text>
           )}

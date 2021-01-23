@@ -63,6 +63,7 @@ const SignInScreen = ({navigation, signIn, isLoading, error}) => {
           icon="mail"
           placeholder="Email"
           value={email}
+          editable={!isLoading}
           onChangeText={(text) => setEmail(text)}
           valid={!validEmail}
         />
@@ -72,6 +73,7 @@ const SignInScreen = ({navigation, signIn, isLoading, error}) => {
           icon="key"
           placeholder="Password"
           value={password}
+          editable={!isLoading}
           onChangeText={(text) => setPassword(text)}
           secureTextEntry={true}
           valid={!validEmail && password}
@@ -89,11 +91,12 @@ const SignInScreen = ({navigation, signIn, isLoading, error}) => {
           disabled={validEmail || !password ? true : false}
           onPress={() => signIn({email, password})}>
           {isLoading ? (
-            <ActivityIndicator size="small" color={Colors.charlie} />
+            <Text style={styles.btnText}>Signing In . . .</Text>
           ) : (
             <Text style={styles.btnText}>SIGN IN</Text>
           )}
         </Button>
+        <ErrorMsg errorMsg={error ? error : ' '} />
 
         <View
           style={{

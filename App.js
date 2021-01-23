@@ -55,13 +55,17 @@ const App = ({authState}) => {
     return subscriber;
   }, []);
 
+  if (
+    authState.Loading ||
+    authState.updateProfile.loading ||
+    authState.recoverPassword.loading
+  ) {
+    return <Loading />;
+  }
+
   return (
     <NavigationContainer>
-      {authState.updateProfile.loading ||
-      authState.loading ||
-      authState.recoverPassword.loading ? (
-        <Loading />
-      ) : authState.user && !authState.user.emailVerified ? (
+      {authState.user && !authState.user.emailVerified ? (
         <EmailVarificationScreen />
       ) : authState.user && authState.user.emailVerified ? (
         authState.profileData ? (

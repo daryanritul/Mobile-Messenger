@@ -19,7 +19,7 @@ export const signUp = (data) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: actions.AUTH_FAIL,
-      payload: error,
+      payload: error.message,
     });
   }
   dispatch({
@@ -37,12 +37,15 @@ export const signIn = (data) => async (dispatch) => {
     dispatch({
       type: actions.AUTH_SUCCESS,
     });
-  } catch (err) {
+  } catch (error) {
     dispatch({
       type: actions.AUTH_FAIL,
-      payload: error,
+      payload: error.message,
     });
   }
+  dispatch({
+    type: actions.AUTH_END,
+  });
 };
 
 export const emailVarification = () => async (dispatch) => {
