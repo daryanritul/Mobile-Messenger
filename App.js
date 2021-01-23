@@ -43,7 +43,7 @@ const App = ({authState}) => {
       {authState.user && !authState.user.emailVerified ? (
         <EmailVarificationScreen />
       ) : authState.user && authState.user.emailVerified ? (
-        authState.profileData.data ? (
+        authState.profileData ? (
           <AppNavigator />
         ) : (
           <UpdateProfileScreen />

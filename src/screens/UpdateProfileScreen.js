@@ -142,11 +142,11 @@ const UpdateProfileScreen = () => {
                   width: '100%',
                 }}
                 style={{
-                  width: '50%',
+                  width: '40%',
                   textAlign: 'center',
                 }}
                 iconStyle={{
-                  width: '25%',
+                  width: '30%',
                 }}
                 inputBox={{
                   borderColor: gender === true ? 'green' : Colors.charlieDark,
@@ -168,11 +168,11 @@ const UpdateProfileScreen = () => {
                   width: '100%',
                 }}
                 style={{
-                  width: '50%',
+                  width: '40%',
                   textAlign: 'center',
                 }}
                 iconStyle={{
-                  width: '25%',
+                  width: '30%',
                 }}
                 inputBox={{
                   borderColor: gender == false ? 'green' : Colors.charlieDark,
