@@ -21,9 +21,36 @@ import {Icon, Thumbnail} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 import AppInput from '../Components/AppInput';
 import ErrorMsg from '../Components/ErrorMsg';
+import {
+  dateValidator,
+  displayNameValidator,
+  userNameValidator,
+} from '../Constants/Validator';
 
 const UpdateProfileScreen = () => {
+  const [displayName, setDisplayName] = useState('');
+  const [userName, setUserName] = useState('');
+  const [bio, setBio] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(null);
+  const [profilePicture, setProfilePicture] = useState('');
+
+  const disName = displayNameValidator(displayName);
+  const uName = userNameValidator(userName);
+  const dob = dateValidator(dateOfBirth);
+
+  const validForm = disName
+    ? false
+    : true && uName
+    ? false
+    : true && dob
+    ? false
+    : true && gender
+    ? true
+    : false && bio
+    ? true
+    : false;
+
   return (
     <View style={styles.container}>
       <View style={styles.headerBar}>
@@ -36,19 +63,23 @@ const UpdateProfileScreen = () => {
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Icon name="close-sharp" style={styles.headerIcon} />
+          <Icon name="close" style={styles.headerIcon} />
         </TouchableHighlight>
         <Text style={styles.headerTitle}>UPDATE PROFILE</Text>
         <TouchableHighlight
           onPress={() => console.log('exiting')}
           underlayColor={'rgba(0,0,0,0.2)'}
+          disabled={!validForm}
           style={{
             height: '100%',
             width: '15%',
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Icon name="checkmark-sharp" style={styles.headerIcon} />
+          <Icon
+            name={validForm ? 'checkmark' : 'alert'}
+            style={styles.headerIcon}
+          />
         </TouchableHighlight>
       </View>
       <ScrollView
@@ -73,7 +104,7 @@ const UpdateProfileScreen = () => {
               value={'Add Profile Picture'}
               editable={false}
               inputView={styles.inputView}
-              valid={false}
+              valid={profilePicture}
             />
           </TouchableOpacity>
           <ErrorMsg />
@@ -93,16 +124,22 @@ const UpdateProfileScreen = () => {
             iconType="MaterialCommunityIcons"
             placeholder="Display Name"
             inputView={styles.inputView}
+            value={displayName}
+            onChangeText={(text) => setDisplayName(text)}
+            valid={!disName}
           />
-          <ErrorMsg />
+          <ErrorMsg errorMsg={disName} />
 
           <AppInput
             icon="account-settings"
             iconType="MaterialCommunityIcons"
             placeholder="@username"
             inputView={styles.inputView}
+            value={userName}
+            onChangeText={(text) => setUserName(text)}
+            valid={!uName}
           />
-          <ErrorMsg />
+          <ErrorMsg errorMsg={uName} />
 
           <AppInput
             icon="account-details"
@@ -110,6 +147,9 @@ const UpdateProfileScreen = () => {
             placeholder="Bio"
             multiline={true}
             inputView={styles.inputView}
+            value={bio}
+            onChangeText={(text) => setBio(text)}
+            valid={bio}
           />
           <ErrorMsg />
 
@@ -118,9 +158,12 @@ const UpdateProfileScreen = () => {
             iconType="MaterialCommunityIcons"
             placeholder="Date of Birth (DD/MM/YYYY)"
             inputView={styles.inputView}
+            value={dateOfBirth}
+            onChangeText={(text) => setDateOfBirth(text)}
+            valid={!dob}
           />
 
-          <ErrorMsg />
+          <ErrorMsg errorMsg={dob} />
           <View
             style={{
               flexDirection: 'row',
@@ -203,7 +246,7 @@ const styles = StyleSheet.create({
   },
   headerIcon: {
     color: Colors.charlie,
-    fontSize: responsiveFontSize(4),
+    fontSize: responsiveFontSize(3.3),
   },
   headerTitle: {
     width: '70%',
