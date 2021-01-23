@@ -26,14 +26,32 @@ import {
   displayNameValidator,
   userNameValidator,
 } from '../Constants/Validator';
+import {updateUserProfile} from '../store/actions/authActions';
+import {connect} from 'react-redux';
 
-const UpdateProfileScreen = () => {
-  const [displayName, setDisplayName] = useState('');
-  const [userName, setUserName] = useState('');
-  const [bio, setBio] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState(null);
-  const [profilePicture, setProfilePicture] = useState('');
+const UpdateProfileScreen = ({
+  updateUserProfile,
+  userEmail,
+  uid,
+  navigation,
+  profileData,
+}) => {
+  const [displayName, setDisplayName] = useState(
+    profileData ? profileData.name : '',
+  );
+  const [userName, setUserName] = useState(
+    profileData ? profileData.userName : '',
+  );
+  const [bio, setBio] = useState(profileData ? profileData.bio : '');
+  const [dateOfBirth, setDateOfBirth] = useState(
+    profileData ? profileData.dateOfBirth : '',
+  );
+  const [gender, setGender] = useState(
+    profileData ? (profileData.gender === 'Male' ? true : false) : null,
+  );
+  const [profilePicture, setProfilePicture] = useState(
+    profileData ? profileData.profileUrl : '',
+  );
 
   const disName = displayNameValidator(displayName);
   const uName = userNameValidator(userName);
@@ -55,7 +73,7 @@ const UpdateProfileScreen = () => {
     <View style={styles.container}>
       <View style={styles.headerBar}>
         <TouchableHighlight
-          onPress={() => console.log('exiting')}
+          onPress={() => navigation.goBack()}
           underlayColor={'rgba(0,0,0,0.2)'}
           style={{
             height: '100%',
@@ -67,7 +85,17 @@ const UpdateProfileScreen = () => {
         </TouchableHighlight>
         <Text style={styles.headerTitle}>UPDATE PROFILE</Text>
         <TouchableHighlight
-          onPress={() => console.log('exiting')}
+          onPress={() =>
+            updateUserProfile({
+              name: displayName,
+              userName,
+              profileUrl: 'none',
+              bio,
+              dateOfBirth,
+              gender: gender ? 'Male' : 'Female',
+              uid,
+            })
+          }
           underlayColor={'rgba(0,0,0,0.2)'}
           disabled={!validForm}
           style={{
@@ -112,7 +140,7 @@ const UpdateProfileScreen = () => {
           <AppInput
             icon="email"
             iconType="MaterialCommunityIcons"
-            value={'ritul.daryan.205@gmail.com'}
+            value={userEmail}
             editable={false}
             inputView={styles.inputView}
             valid={true}
@@ -135,6 +163,7 @@ const UpdateProfileScreen = () => {
             iconType="MaterialCommunityIcons"
             placeholder="@username"
             inputView={styles.inputView}
+            editable={!profileData}
             value={userName}
             onChangeText={(text) => setUserName(text)}
             valid={!uName}
@@ -230,7 +259,20 @@ const UpdateProfileScreen = () => {
   );
 };
 
-export default UpdateProfileScreen;
+const mapDispatchToProps = {
+  updateUserProfile: (data) => updateUserProfile(data),
+};
+
+const mapStateToProps = (state) => ({
+  userEmail: state.auth.user.email,
+  uid: state.auth.user.uid,
+  profileData: state.auth.profileData,
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(UpdateProfileScreen);
 
 const styles = StyleSheet.create({
   container: {

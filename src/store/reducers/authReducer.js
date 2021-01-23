@@ -17,7 +17,6 @@ const initialState = {
 
 const cleanUp = (state) => {
   return {
-    ...state,
     user: null,
     profileData: null,
     error: null,
@@ -65,6 +64,7 @@ const setUser = (state, payload) => {
   return {
     ...state,
     user: payload,
+    loading: false,
   };
 };
 

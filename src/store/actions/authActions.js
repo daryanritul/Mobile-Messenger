@@ -75,6 +75,39 @@ export const recoverPassword = (email) => async (dispatch) => {
   }
 };
 
+export const updateUserProfile = (data) => async (dispatch) => {
+  const {name, userName, dateOfBirth, profileUrl, gender, bio, uid} = data;
+  console.log(data);
+  dispatch({type: actions.UPDATE_PROFILE_START});
+  try {
+    await firestore()
+      .collection('users')
+      .doc(uid)
+      .set({
+        name,
+        userName,
+        bio,
+        dateOfBirth,
+        gender,
+        profileUrl,
+        uid,
+      })
+      .then(() => console.log('Its Done Users Data Successfully'));
+
+    await firestore()
+      .collection('userNames')
+      .doc(userName)
+      .set({
+        uid,
+      })
+      .then(() => console.log('Its Done UserName Success'));
+
+    dispatch({type: actions.UPDATE_PROFILE_SUCCESS, payload: data});
+  } catch (err) {
+    dispatch({type: actions.UPDATE_PROFILE_FAIL, payload: err.message});
+  }
+};
+
 export const reloadUser = () => async (dispatch) => {
   const user = auth().currentUser;
   await user.reload().then((ok) => {
