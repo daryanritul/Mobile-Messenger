@@ -2,24 +2,32 @@ import * as actions from '../actions/actions.types';
 
 const initialState = {
   user: null,
+  profileData: null,
   error: null,
   loading: false,
   recoverPassword: {
     loading: false,
     error: null,
   },
+  updateProfile: {
+    error: null,
+    loading: false,
+  },
 };
 
 const cleanUp = (state) => {
   return {
-    ...state,
     user: null,
+    profileData: null,
     error: null,
     loading: false,
     recoverPassword: {
-      ...state.recoverPassword,
       loading: false,
       error: null,
+    },
+    updateProfile: {
+      error: null,
+      loading: false,
     },
   };
 };
@@ -56,6 +64,7 @@ const setUser = (state, payload) => {
   return {
     ...state,
     user: payload,
+    loading: false,
   };
 };
 
@@ -88,6 +97,38 @@ const recoveryFail = (state, payload) => {
   };
 };
 
+const updateProfileStart = (state) => {
+  return {
+    ...state,
+    updateProfile: {
+      ...state.updateProfile,
+      loading: true,
+    },
+  };
+};
+
+const updateProfileSuccess = (state, payload) => {
+  return {
+    ...state,
+    profileData: payload,
+    updateProfile: {
+      ...state.updateProfile,
+      error: false,
+      loading: false,
+    },
+  };
+};
+
+const updateProfileFail = (state, payload) => {
+  return {
+    ...state,
+    updateProfile: {
+      error: payload,
+      loading: false,
+    },
+  };
+};
+
 export default (state = initialState, {type, payload}) => {
   switch (type) {
     case actions.AUTH_START:
@@ -116,6 +157,16 @@ export default (state = initialState, {type, payload}) => {
 
     case actions.RECOVERY_FAIL:
       return recoveryFail(state, payload);
+
+    case actions.UPDATE_PROFILE_START:
+      return updateProfileStart(state);
+
+    case actions.UPDATE_PROFILE_SUCCESS:
+      return updateProfileSuccess(state, payload);
+
+    case actions.UPDATE_PROFILE_FAIL:
+      return updateProfileFail(state, payload);
+
     default:
       return state;
   }

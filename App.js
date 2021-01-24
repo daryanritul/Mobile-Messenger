@@ -1,30 +1,48 @@
 import React, {useEffect} from 'react';
-import {StatusBar, StyleSheet, Text, View} from 'react-native';
+import {StatusBar} from 'react-native';
 
 import {NavigationContainer} from '@react-navigation/native';
 import AuthNavigator from './src/Navigation/AuthNavigator';
 import EmailVarificationScreen from './src/screens/EmailVarificationScreen';
 import AppNavigator from './src/Navigation/AppNavigator';
+import UpdateProfileScreen from './src/screens/UpdateProfileScreen';
 import {Colors} from './src/Constants/Colors';
 
 import {connect, useDispatch} from 'react-redux';
 import {
-  AUTH_SUCCESS,
   CLEAN_UP,
   SET_USER,
+  UPDATE_PROFILE_START,
+  UPDATE_PROFILE_SUCCESS,
 } from './src/store/actions/actions.types';
 
 import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import Loading from './src/Components/Loading';
 
 const App = ({authState}) => {
   const dispatch = useDispatch();
 
-  const onAuthStateChanged = (user) => {
+  const onAuthStateChanged = async (user) => {
     if (user) {
+      dispatch({
+        type: UPDATE_PROFILE_START,
+      });
       dispatch({
         type: SET_USER,
         payload: user,
       });
+
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .onSnapshot((documentSnapshot) => {
+          dispatch({
+            type: UPDATE_PROFILE_SUCCESS,
+            payload: documentSnapshot._data,
+          });
+          console.log('Getting Data From Firestore', documentSnapshot._data);
+        });
     } else {
       dispatch({
         type: CLEAN_UP,
@@ -37,12 +55,20 @@ const App = ({authState}) => {
     return subscriber;
   }, []);
 
+  if (authState.Loading || authState.recoverPassword.loading) {
+    return <Loading />;
+  }
+
   return (
     <NavigationContainer>
       {authState.user && !authState.user.emailVerified ? (
         <EmailVarificationScreen />
       ) : authState.user && authState.user.emailVerified ? (
-        <AppNavigator />
+        authState.profileData ? (
+          <AppNavigator />
+        ) : (
+          <UpdateProfileScreen />
+        )
       ) : (
         <AuthNavigator />
       )}

@@ -10,6 +10,7 @@ import ChatScreen from '../screens/ChatScreen';
 import SearchScreen from '../screens/SearchScreen';
 import {Pressable, Text} from 'react-native';
 import {Icon} from 'native-base';
+import UpdateProfileScreen from '../screens/UpdateProfileScreen';
 
 const Stack = createStackNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -75,6 +76,13 @@ const AppNavigator = () => {
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen
+        name="UpdateProfileScreen"
+        component={UpdateProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 };

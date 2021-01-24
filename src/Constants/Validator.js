@@ -19,3 +19,28 @@ export const confirmPasswordValidator = (password, confirmPassword) => {
     else return 'Password did not match';
   } else return ' ';
 };
+
+export const displayNameValidator = (name) => {
+  if (name.length > 0) {
+    return '';
+  } else return ' ';
+};
+
+export const userNameValidator = (name) => {
+  if (name) {
+    var userName = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{0,29}$/gim;
+
+    if (name.match(userName)) {
+      return '';
+    } else return 'only [a-z], [0-9], -, _ are allowed';
+  } else return ' ';
+};
+
+export const dateValidator = (date) => {
+  if (date) {
+    var datePattern = /^(((0[1-9]|[12][0-9]|3[01])[- /.](0[13578]|1[02])|(0[1-9]|[12][0-9]|30)[- /.](0[469]|11)|(0[1-9]|1\d|2[0-8])[- /.]02)[- /.]\d{4}|29[- /.]02[- /.](\d{2}(0[48]|[2468][048]|[13579][26])|([02468][048]|[1359][26])00))$/g;
+    if (date.match(datePattern)) {
+      return '';
+    } else return 'Invalid Date Format';
+  } else return ' ';
+};

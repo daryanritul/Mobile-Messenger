@@ -2,6 +2,7 @@ import * as actions from './actions.types';
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 export const signUp = (data) => async (dispatch) => {
   const {email, password} = data;
@@ -19,7 +20,7 @@ export const signUp = (data) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: actions.AUTH_FAIL,
-      payload: error,
+      payload: error.message,
     });
   }
   dispatch({
@@ -37,12 +38,15 @@ export const signIn = (data) => async (dispatch) => {
     dispatch({
       type: actions.AUTH_SUCCESS,
     });
-  } catch (err) {
+  } catch (error) {
     dispatch({
       type: actions.AUTH_FAIL,
-      payload: error,
+      payload: error.message,
     });
   }
+  dispatch({
+    type: actions.AUTH_END,
+  });
 };
 
 export const emailVarification = () => async (dispatch) => {
@@ -72,6 +76,67 @@ export const recoverPassword = (email) => async (dispatch) => {
       });
   } catch (err) {
     dispatch({type: actions.RECOVERY_FAIL, payload: err.message});
+  }
+};
+
+export const updateUserProfile = (data) => async (dispatch) => {
+  const {
+    name,
+    userName,
+    dateOfBirth,
+    profileUrl,
+    gender,
+    bio,
+    uid,
+    upload,
+  } = data;
+  dispatch({type: actions.UPDATE_PROFILE_START});
+  const imageUrl = upload ? await uploadImage(profileUrl, uid) : profileUrl;
+  if (imageUrl) {
+    console.log(imageUrl);
+  } else {
+    console.log('i Failed');
+    return;
+  }
+  try {
+    await firestore()
+      .collection('users')
+      .doc(uid)
+      .set({
+        name,
+        userName,
+        bio,
+        dateOfBirth,
+        gender,
+        profileUrl: imageUrl,
+        uid,
+      })
+      .then(() => console.log('UpdateSucess'));
+
+    await firestore()
+      .collection('userNames')
+      .doc(userName)
+      .set({
+        uid,
+      })
+      .then(() => console.log('UpdateSucess'));
+  } catch (err) {
+    dispatch({type: actions.UPDATE_PROFILE_FAIL, payload: err.message});
+  }
+  dispatch({type: actions.UPDATE_PROFILE_FAIL, payload: false});
+};
+
+export const uploadImage = async (url, uid) => {
+  const storageRef = await storage().ref('users/profilePicture/' + uid);
+  const task = await storageRef.putFile(url);
+
+  try {
+    await task;
+    const newUrl = await storageRef.getDownloadURL();
+    return newUrl;
+  } catch (err) {
+    console.log(err);
+    return;
   }
 };
 

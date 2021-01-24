@@ -4,12 +4,18 @@ import {StyleSheet, Text, View} from 'react-native';
 import {connect} from 'react-redux';
 import {signOut} from '../store/actions/authActions';
 
-const ProfileScreen = ({signOut}) => {
+const ProfileScreen = ({signOut, navigation}) => {
   return (
     <View>
       <Text>Profile Screen</Text>
       <Button danger block onPress={() => signOut()}>
         <Text>SIGN OUT</Text>
+      </Button>
+      <Button
+        info
+        block
+        onPress={() => navigation.navigate('UpdateProfileScreen')}>
+        <Text>UPDATE PROFILE</Text>
       </Button>
     </View>
   );

@@ -17,11 +17,24 @@ import {Colors} from '../Constants/Colors';
 import {Button, Form, Icon, Input, Item} from 'native-base';
 import {fonts} from '../Constants/Fonts';
 
-const AppInput = ({icon, iconTtype, valid, length, ...otherProps}) => {
+const AppInput = ({
+  icon,
+  iconType,
+  valid,
+  length,
+  inputBox,
+  inputView,
+  iconStyle,
+  ...otherProps
+}) => {
   return (
-    <View style={styles.inputContainer}>
-      <View style={styles.inputBox}>
-        <Icon name={icon} style={styles.inputIcon} type={iconTtype} />
+    <View style={[styles.inputContainer, inputView]}>
+      <View style={[styles.inputBox, inputBox]}>
+        <Icon
+          name={icon}
+          style={[styles.inputIcon, iconStyle]}
+          type={iconType}
+        />
         <TextInput
           style={styles.input}
           {...otherProps}
@@ -33,6 +46,7 @@ const AppInput = ({icon, iconTtype, valid, length, ...otherProps}) => {
           style={[
             styles.inputIcon,
             {color: !valid ? Colors.charlieDark : 'green'},
+            iconStyle,
           ]}
         />
       </View>
@@ -72,7 +86,6 @@ const styles = StyleSheet.create({
   },
   inputIcon: {
     width: '15%',
-
     color: Colors.charlieDark,
     textAlign: 'center',
     textAlignVertical: 'center',
