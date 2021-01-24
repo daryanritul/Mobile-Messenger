@@ -36,12 +36,12 @@ const App = ({authState}) => {
       await firestore()
         .collection('users')
         .doc(user.uid)
-        .get()
-        .then((documentSnapshot) => {
+        .onSnapshot((documentSnapshot) => {
           dispatch({
             type: UPDATE_PROFILE_SUCCESS,
             payload: documentSnapshot._data,
           });
+          console.log('Getting Data From Firestore', documentSnapshot._data);
         });
     } else {
       dispatch({
@@ -55,11 +55,7 @@ const App = ({authState}) => {
     return subscriber;
   }, []);
 
-  if (
-    authState.Loading ||
-    authState.updateProfile.loading ||
-    authState.recoverPassword.loading
-  ) {
+  if (authState.Loading || authState.recoverPassword.loading) {
     return <Loading />;
   }
 

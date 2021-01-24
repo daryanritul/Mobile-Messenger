@@ -30,6 +30,8 @@ import {updateUserProfile} from '../store/actions/authActions';
 import {connect} from 'react-redux';
 
 import ImagePicker from 'react-native-image-crop-picker';
+import {set} from 'react-native-reanimated';
+import Loading from '../Components/Loading';
 
 const UpdateProfileScreen = ({
   updateUserProfile,
@@ -37,6 +39,7 @@ const UpdateProfileScreen = ({
   uid,
   navigation,
   profileData,
+  isLoading,
 }) => {
   const [displayName, setDisplayName] = useState(
     profileData ? profileData.name : '',
@@ -51,11 +54,19 @@ const UpdateProfileScreen = ({
   const [gender, setGender] = useState(
     profileData ? (profileData.gender === 'Male' ? true : false) : null,
   );
-  const [profilePicture, setProfilePicture] = useState();
+  const [profilePicture, setProfilePicture] = useState(
+    profileData ? profileData.profileUrl : null,
+  );
+  const [photoPicker, setPhotoPicker] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(false);
 
   const disName = displayNameValidator(displayName);
   const uName = userNameValidator(userName);
   const dob = dateValidator(dateOfBirth);
+  const femaleAvatar =
+    'https://firebasestorage.googleapis.com/v0/b/mobile-messenger-b9264.appspot.com/o/users%2FprofilePicture%2FfemaleAvatar.jpg?alt=media&token=180de6c7-3dbc-4a67-a647-698cbfe12cda';
+  const maleAvatar =
+    'https://firebasestorage.googleapis.com/v0/b/mobile-messenger-b9264.appspot.com/o/users%2FprofilePicture%2FmaleAvatar.jpg?alt=media&token=ded1a45d-392d-4bc1-ae68-6f4f49a0dde6';
 
   const validForm = disName
     ? false
@@ -63,11 +74,58 @@ const UpdateProfileScreen = ({
     ? false
     : true && dob
     ? false
-    : true && gender
+    : true && (gender === true || gender === false)
     ? true
     : false && bio
     ? true
     : false;
+
+  const takePhotoFromCamera = () => {
+    ImagePicker.openCamera({
+      width: 720,
+      height: 720,
+      cropping: true,
+    }).then((image) => {
+      setProfilePicture(image.path);
+    });
+    setUploadStatus(true);
+    setPhotoPicker(false);
+  };
+
+  const choosePhotoFromLibrary = () => {
+    ImagePicker.openPicker({
+      width: 720,
+      height: 720,
+      cropping: true,
+    }).then((image) => {
+      setProfilePicture(image.path);
+    });
+    setUploadStatus(true);
+
+    setPhotoPicker(false);
+  };
+  console.log(uploadStatus, profilePicture);
+  const updateProfleHandler = async () => {
+    await updateUserProfile({
+      name: displayName,
+      userName,
+      profileUrl: profilePicture
+        ? profilePicture
+        : gender
+        ? maleAvatar
+        : femaleAvatar,
+      bio,
+      dateOfBirth,
+      gender: gender ? 'Male' : 'Female',
+      uid,
+      upload: uploadStatus,
+    });
+    if (profileData) navigation.goBack();
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <View style={styles.container}>
@@ -75,6 +133,7 @@ const UpdateProfileScreen = ({
         <TouchableHighlight
           onPress={() => navigation.goBack()}
           underlayColor={'rgba(0,0,0,0.2)'}
+          disabled={profileData ? false : true}
           style={{
             height: '100%',
             width: '15%',
@@ -85,17 +144,7 @@ const UpdateProfileScreen = ({
         </TouchableHighlight>
         <Text style={styles.headerTitle}>UPDATE PROFILE</Text>
         <TouchableHighlight
-          onPress={() =>
-            updateUserProfile({
-              name: displayName,
-              userName,
-              profileUrl: 'none',
-              bio,
-              dateOfBirth,
-              gender: gender ? 'Male' : 'Female',
-              uid,
-            })
-          }
+          onPress={() => updateProfleHandler()}
           underlayColor={'rgba(0,0,0,0.2)'}
           disabled={!validForm}
           style={{
@@ -116,32 +165,63 @@ const UpdateProfileScreen = ({
         }}>
         <KeyboardAvoidingView behavior="padding">
           <View style={styles.avatarBox}>
-            <Thumbnail
-              source={
-                profilePicture
-                  ? {uri: profilePicture}
-                  : gender
-                  ? require('../Assets/Images/maleAvatar.jpg')
-                  : require('../Assets/Images/femaleAvatar.jpg')
-              }
-              large
-            />
+            {photoPicker && (
+              <TouchableOpacity
+                onPress={() => takePhotoFromCamera()}
+                style={styles.optionBox}>
+                <Icon
+                  name="camera-plus"
+                  type="MaterialCommunityIcons"
+                  style={{
+                    fontSize: responsiveFontSize(6),
+                    color: Colors.alpha,
+                  }}
+                />
+                <Text style={styles.optionText}>Open Camera</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              onPress={() => {
+                setProfilePicture(null);
+                setPhotoPicker(false);
+              }}
+              style={styles.optionBox}
+              disabled={!photoPicker}>
+              <Thumbnail
+                source={
+                  profilePicture && !photoPicker
+                    ? {uri: profilePicture}
+                    : gender
+                    ? {uri: maleAvatar}
+                    : {uri: femaleAvatar}
+                }
+                large
+              />
+              {photoPicker && (
+                <Text style={styles.optionText}>Use Default</Text>
+              )}
+            </TouchableOpacity>
+            {photoPicker && (
+              <TouchableOpacity
+                onPress={() => choosePhotoFromLibrary()}
+                style={styles.optionBox}>
+                <Icon
+                  name="image-plus"
+                  type="MaterialCommunityIcons"
+                  style={{
+                    fontSize: responsiveFontSize(6),
+                    color: Colors.alpha,
+                  }}
+                />
+                <Text style={styles.optionText}>Open Library</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <TouchableOpacity
-            onPress={() =>
-              ImagePicker.openCamera({
-                width: 300,
-                height: 400,
-                cropping: true,
-              }).then((image) => {
-                setProfilePicture(image.path);
-                console.log(image);
-              })
-            }>
+          <TouchableOpacity onPress={() => setPhotoPicker(!photoPicker)}>
             <AppInput
               icon="camera-plus"
               iconType="MaterialCommunityIcons"
-              value={'Add Profile Picture'}
+              value={photoPicker ? 'Save' : 'Add Profile Image'}
               editable={false}
               inputView={styles.inputView}
               valid={profilePicture}
@@ -279,6 +359,7 @@ const mapStateToProps = (state) => ({
   userEmail: state.auth.user.email,
   uid: state.auth.user.uid,
   profileData: state.auth.profileData,
+  isLoading: state.auth.updateProfile.loading,
 });
 
 export default connect(
@@ -312,12 +393,13 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
   },
   avatarBox: {
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     alignSelf: 'center',
     marginVertical: 10,
     width: responsiveWidth(90),
-    height: responsiveHeight(15),
+    height: responsiveHeight(18),
     borderWidth: 1,
     borderRadius: 5,
     borderColor: Colors.charlieDark,
@@ -330,5 +412,15 @@ const styles = StyleSheet.create({
   },
   inputView: {
     width: responsiveWidth(90),
+  },
+  optionText: {
+    fontFamily: fonts.acuminB,
+    fontSize: responsiveFontSize(1.5),
+    padding: 5,
+  },
+  optionBox: {
+    flex: 1,
+    margin: 1,
+    alignItems: 'center',
   },
 });

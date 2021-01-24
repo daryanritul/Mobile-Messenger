@@ -2,6 +2,7 @@ import * as actions from './actions.types';
 
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 
 export const signUp = (data) => async (dispatch) => {
   const {email, password} = data;
@@ -79,9 +80,24 @@ export const recoverPassword = (email) => async (dispatch) => {
 };
 
 export const updateUserProfile = (data) => async (dispatch) => {
-  const {name, userName, dateOfBirth, profileUrl, gender, bio, uid} = data;
-  console.log(data);
+  const {
+    name,
+    userName,
+    dateOfBirth,
+    profileUrl,
+    gender,
+    bio,
+    uid,
+    upload,
+  } = data;
   dispatch({type: actions.UPDATE_PROFILE_START});
+  const imageUrl = upload ? await uploadImage(profileUrl, uid) : profileUrl;
+  if (imageUrl) {
+    console.log(imageUrl);
+  } else {
+    console.log('i Failed');
+    return;
+  }
   try {
     await firestore()
       .collection('users')
@@ -92,10 +108,10 @@ export const updateUserProfile = (data) => async (dispatch) => {
         bio,
         dateOfBirth,
         gender,
-        profileUrl,
+        profileUrl: imageUrl,
         uid,
       })
-      .then(() => console.log('Its Done Users Data Successfully'));
+      .then(() => console.log('UpdateSucess'));
 
     await firestore()
       .collection('userNames')
@@ -103,11 +119,24 @@ export const updateUserProfile = (data) => async (dispatch) => {
       .set({
         uid,
       })
-      .then(() => console.log('Its Done UserName Success'));
-
-    dispatch({type: actions.UPDATE_PROFILE_SUCCESS, payload: data});
+      .then(() => console.log('UpdateSucess'));
   } catch (err) {
     dispatch({type: actions.UPDATE_PROFILE_FAIL, payload: err.message});
+  }
+  dispatch({type: actions.UPDATE_PROFILE_FAIL, payload: false});
+};
+
+export const uploadImage = async (url, uid) => {
+  const storageRef = await storage().ref('users/profilePicture/' + uid);
+  const task = await storageRef.putFile(url);
+
+  try {
+    await task;
+    const newUrl = await storageRef.getDownloadURL();
+    return newUrl;
+  } catch (err) {
+    console.log(err);
+    return;
   }
 };
 
