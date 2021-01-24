@@ -104,7 +104,6 @@ const UpdateProfileScreen = ({
 
     setPhotoPicker(false);
   };
-  console.log(uploadStatus, profilePicture);
   const updateProfleHandler = async () => {
     await updateUserProfile({
       name: displayName,

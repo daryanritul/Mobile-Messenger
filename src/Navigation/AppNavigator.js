@@ -11,6 +11,9 @@ import SearchScreen from '../screens/SearchScreen';
 import {Pressable, Text} from 'react-native';
 import {Icon} from 'native-base';
 import UpdateProfileScreen from '../screens/UpdateProfileScreen';
+import {Colors} from '../Constants/Colors';
+import {responsiveFontSize} from 'react-native-responsive-dimensions';
+import {fonts} from '../Constants/Fonts';
 
 const Stack = createStackNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -20,16 +23,21 @@ const AppTabs = () => {
     <TopTabs.Navigator
       initialRouteName="HomeScreen"
       tabBarOptions={{
-        // style: {
-        //   height: 0,
-        // },
+        style: {
+          //   height: 0,
+          backgroundColor: Colors.bravo,
+          elevation: 0,
+        },
         // showLabel: false,
         // showIcon: false,
         labelStyle: {
           fontWeight: 'bold',
-          fontSize: 11,
+          fontSize: responsiveFontSize(1.6),
+          color: Colors.charlie,
         },
-        indicatorStyle: {},
+        indicatorStyle: {
+          backgroundColor: Colors.charlie,
+        },
       }}>
       <TopTabs.Screen
         name="HomeScreen"
@@ -51,15 +59,25 @@ const AppTabs = () => {
 
 const AppNavigator = () => {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={() => ({
+        headerStyle: {
+          elevation: 0,
+          backgroundColor: Colors.bravo,
+        },
+        headerTitleStyle: {
+          color: Colors.charlie,
+          fontFamily: fonts.acuminB,
+          fontSize: responsiveFontSize(2.6),
+        },
+        headerTintColor: Colors.charlie,
+      })}>
       <Stack.Screen
         name="AppTabs"
         component={AppTabs}
         options={({route, navigation}) => ({
           title: 'Mobile Messenger',
-          headerStyle: {
-            elevation: 0,
-          },
+
           headerRight: () => (
             <Pressable onPress={() => navigation.navigate('ProfileScreen')}>
               <Icon
