@@ -29,6 +29,8 @@ import {
 import {updateUserProfile} from '../store/actions/authActions';
 import {connect} from 'react-redux';
 
+import ImagePicker from 'react-native-image-crop-picker';
+
 const UpdateProfileScreen = ({
   updateUserProfile,
   userEmail,
@@ -49,9 +51,7 @@ const UpdateProfileScreen = ({
   const [gender, setGender] = useState(
     profileData ? (profileData.gender === 'Male' ? true : false) : null,
   );
-  const [profilePicture, setProfilePicture] = useState(
-    profileData ? profileData.profileUrl : '',
-  );
+  const [profilePicture, setProfilePicture] = useState();
 
   const disName = displayNameValidator(displayName);
   const uName = userNameValidator(userName);
@@ -118,14 +118,26 @@ const UpdateProfileScreen = ({
           <View style={styles.avatarBox}>
             <Thumbnail
               source={
-                gender
+                profilePicture
+                  ? {uri: profilePicture}
+                  : gender
                   ? require('../Assets/Images/maleAvatar.jpg')
                   : require('../Assets/Images/femaleAvatar.jpg')
               }
               large
             />
           </View>
-          <TouchableOpacity onPress={() => console.log('hello')}>
+          <TouchableOpacity
+            onPress={() =>
+              ImagePicker.openCamera({
+                width: 300,
+                height: 400,
+                cropping: true,
+              }).then((image) => {
+                setProfilePicture(image.path);
+                console.log(image);
+              })
+            }>
             <AppInput
               icon="camera-plus"
               iconType="MaterialCommunityIcons"
