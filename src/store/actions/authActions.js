@@ -115,9 +115,10 @@ export const updateUserProfile = (data) => async (dispatch) => {
 
     await firestore()
       .collection('userNames')
-      .doc(userName)
+      .doc(uid)
       .set({
         uid,
+        userName,
       })
       .then(() => console.log('UpdateSucess'));
   } catch (err) {

@@ -100,7 +100,13 @@ const AppNavigator = () => {
           headerTitle: false,
         }}
       />
-      <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="UpdateProfileScreen"
         component={UpdateProfileScreen}

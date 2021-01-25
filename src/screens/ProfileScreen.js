@@ -24,7 +24,10 @@ import {signOut} from '../store/actions/authActions';
 import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
 
-const ProfileScreen = ({signOut, navigation, profileData}) => {
+const ProfileScreen = ({signOut, navigation, route, profileData}) => {
+  // const {uid} = route.params;
+  // console.log(uid);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -83,7 +86,6 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
     );
   };
 
-  console.log(profileData);
   return (
     <ScrollView
       style={{
@@ -116,7 +118,7 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
                 fontSize: responsiveFontSize(3),
                 color: Colors.alpha,
               }}>
-              Ritul Daryan
+              {profileData.name}
             </Text>
             <Text
               style={{
@@ -124,7 +126,7 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
                 fontSize: responsiveFontSize(1.8),
                 color: Colors.charlieDark,
               }}>
-              @ritul-daryan
+              @{profileData.userName}
             </Text>
           </View>
         </View>
