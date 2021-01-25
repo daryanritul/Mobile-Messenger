@@ -24,29 +24,33 @@ import {signOut} from '../store/actions/authActions';
 import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
 
-const ProfileScreen = ({signOut, navigation, profileData}) => {
+const ProfileScreen = ({signOut, navigation, route, profileData}) => {
+  const {data} = route.params;
+
+  const dataState = data ? data : profileData;
   useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableHighlight
-          onPress={() => navigation.navigate('UpdateProfileScreen')}
-          underlayColor={'rgba(256,256,256,0.5)'}
-          style={{
-            marginHorizontal: 10,
-            padding: 5,
-            borderRadius: 60,
-          }}>
-          <Icon
-            name="account-edit"
-            type="MaterialCommunityIcons"
+    if (data === false)
+      navigation.setOptions({
+        headerRight: () => (
+          <TouchableHighlight
+            onPress={() => navigation.navigate('UpdateProfileScreen')}
+            underlayColor={'rgba(256,256,256,0.5)'}
             style={{
-              fontSize: responsiveFontSize(4),
-              color: Colors.charlie,
-            }}
-          />
-        </TouchableHighlight>
-      ),
-    });
+              marginHorizontal: 10,
+              padding: 5,
+              borderRadius: 60,
+            }}>
+            <Icon
+              name="account-edit"
+              type="MaterialCommunityIcons"
+              style={{
+                fontSize: responsiveFontSize(4),
+                color: Colors.charlie,
+              }}
+            />
+          </TouchableHighlight>
+        ),
+      });
   }, [navigation]);
 
   const InfoBar = ({value, title}) => {
@@ -83,14 +87,13 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
     );
   };
 
-  console.log(profileData);
   return (
     <ScrollView
       style={{
         backgroundColor: Colors.charlie,
       }}>
       <ImageBackground
-        source={{uri: profileData.profileUrl}}
+        source={{uri: dataState.profileUrl}}
         style={{
           width: responsiveWidth(100),
           height: responsiveHeight(60),
@@ -116,7 +119,7 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
                 fontSize: responsiveFontSize(3),
                 color: Colors.alpha,
               }}>
-              Ritul Daryan
+              {dataState.name}
             </Text>
             <Text
               style={{
@@ -124,7 +127,7 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
                 fontSize: responsiveFontSize(1.8),
                 color: Colors.charlieDark,
               }}>
-              @ritul-daryan
+              @{dataState.userName}
             </Text>
           </View>
         </View>
@@ -135,68 +138,106 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
           height: responsiveHeight(10),
           flexDirection: 'row',
         }}>
-        <View
-          style={{
-            width: '50%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Icon
-            name="group"
-            type="MaterialIcons"
-            style={{
-              color: Colors.alpha,
-              fontSize: responsiveFontSize(4),
-            }}
-          />
-          <Text
-            style={{
-              color: Colors.alpha,
-              fontSize: responsiveFontSize(1.3),
-              fontFamily: fonts.acuminB,
-            }}>
-            Friends
-          </Text>
-          <Text
-            style={{
-              color: Colors.alpha,
-              fontSize: responsiveFontSize(1.3),
-              fontFamily: fonts.acuminB,
-            }}>
-            20
-          </Text>
-        </View>
-        <View
-          style={{
-            width: '50%',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Icon
-            name="groups"
-            type="MaterialIcons"
-            style={{
-              color: Colors.alpha,
-              fontSize: responsiveFontSize(4),
-            }}
-          />
-          <Text
-            style={{
-              color: Colors.alpha,
-              fontSize: responsiveFontSize(1.3),
-              fontFamily: fonts.acuminB,
-            }}>
-            Groups
-          </Text>
-          <Text
-            style={{
-              color: Colors.alpha,
-              fontSize: responsiveFontSize(1.3),
-              fontFamily: fonts.acuminB,
-            }}>
-            20
-          </Text>
-        </View>
+        {!data ? (
+          <>
+            <View
+              style={{
+                width: '50%',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Icon
+                name="group"
+                type="MaterialIcons"
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(4),
+                }}
+              />
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.3),
+                  fontFamily: fonts.acuminB,
+                }}>
+                Friends
+              </Text>
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.3),
+                  fontFamily: fonts.acuminB,
+                }}>
+                20
+              </Text>
+            </View>
+            <View
+              style={{
+                width: '50%',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Icon
+                name="groups"
+                type="MaterialIcons"
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(4),
+                }}
+              />
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.3),
+                  fontFamily: fonts.acuminB,
+                }}>
+                Groups
+              </Text>
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.3),
+                  fontFamily: fonts.acuminB,
+                }}>
+                20
+              </Text>
+            </View>
+          </>
+        ) : (
+          <>
+            <View
+              style={{
+                width: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Icon
+                name="account-plus"
+                type="MaterialCommunityIcons"
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(4),
+                }}
+              />
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.3),
+                  fontFamily: fonts.acuminB,
+                }}>
+                Send Friend
+              </Text>
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.3),
+                  fontFamily: fonts.acuminB,
+                }}>
+                Request
+              </Text>
+            </View>
+          </>
+        )}
       </View>
       <Text
         style={{
@@ -217,49 +258,51 @@ const ProfileScreen = ({signOut, navigation, profileData}) => {
           Info
         </Text>
       </Text>
-      <InfoBar value={profileData.bio} title={'Bio'} />
-      <InfoBar value={profileData.dateOfBirth} title={'Date Of Birth'} />
-      <InfoBar value={profileData.gender} title={'Gender'} />
+      <InfoBar value={dataState.bio} title={'Bio'} />
+      <InfoBar value={dataState.dateOfBirth} title={'Date Of Birth'} />
+      <InfoBar value={dataState.gender} title={'Gender'} />
 
-      <TouchableOpacity
-        style={{
-          margin: 5,
-          padding: 5,
-          alignSelf: 'center',
-        }}
-        onPress={() => {
-          Alert.alert(
-            'Warning',
-            'Are you sure want to Sign-Out',
-            [
-              {
-                text: 'Cancel',
-                style: 'cancel',
-              },
-              {text: 'Sign-Out', onPress: () => signOut()},
-            ],
-            {cancelable: false},
-          );
-        }}>
-        <Icon
-          name="power-off"
-          type="FontAwesome"
+      {data === false && (
+        <TouchableOpacity
           style={{
-            color: 'red',
-            fontSize: responsiveFontSize(5),
-            textAlign: 'center',
+            margin: 5,
+            padding: 5,
+            alignSelf: 'center',
           }}
-        />
-        <Text
-          style={{
-            color: 'red',
-            fontSize: responsiveFontSize(1.3),
-            fontFamily: fonts.acuminB,
-            textAlign: 'center',
+          onPress={() => {
+            Alert.alert(
+              'Warning',
+              'Are you sure want to Sign-Out',
+              [
+                {
+                  text: 'Cancel',
+                  style: 'cancel',
+                },
+                {text: 'Sign-Out', onPress: () => signOut()},
+              ],
+              {cancelable: false},
+            );
           }}>
-          Sign Out
-        </Text>
-      </TouchableOpacity>
+          <Icon
+            name="power-off"
+            type="FontAwesome"
+            style={{
+              color: 'red',
+              fontSize: responsiveFontSize(5),
+              textAlign: 'center',
+            }}
+          />
+          <Text
+            style={{
+              color: 'red',
+              fontSize: responsiveFontSize(1.3),
+              fontFamily: fonts.acuminB,
+              textAlign: 'center',
+            }}>
+            Sign Out
+          </Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 };

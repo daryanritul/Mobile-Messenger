@@ -79,7 +79,12 @@ const AppNavigator = () => {
           title: 'Mobile Messenger',
 
           headerRight: () => (
-            <Pressable onPress={() => navigation.navigate('ProfileScreen')}>
+            <Pressable
+              onPress={() =>
+                navigation.navigate('ProfileScreen', {
+                  data: false,
+                })
+              }>
               <Icon
                 name="account-box"
                 type="MaterialIcons"
@@ -100,7 +105,13 @@ const AppNavigator = () => {
           headerTitle: false,
         }}
       />
-      <Stack.Screen name="SearchScreen" component={SearchScreen} />
+      <Stack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="UpdateProfileScreen"
         component={UpdateProfileScreen}
