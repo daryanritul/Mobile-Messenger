@@ -41,7 +41,6 @@ const App = ({authState}) => {
             type: UPDATE_PROFILE_SUCCESS,
             payload: documentSnapshot._data,
           });
-          console.log('Getting Data From Firestore', documentSnapshot._data);
         });
     } else {
       dispatch({
@@ -49,7 +48,6 @@ const App = ({authState}) => {
       });
     }
   };
-  console.log(authState);
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber;

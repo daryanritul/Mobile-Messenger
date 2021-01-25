@@ -13,23 +13,11 @@ const initialState = {
     error: null,
     loading: false,
   },
+  searchHistory: [],
 };
 
 const cleanUp = (state) => {
-  return {
-    user: null,
-    profileData: null,
-    error: null,
-    loading: false,
-    recoverPassword: {
-      loading: false,
-      error: null,
-    },
-    updateProfile: {
-      error: null,
-      loading: false,
-    },
-  };
+  return initialState;
 };
 
 const authStart = (state) => {
@@ -129,6 +117,31 @@ const updateProfileFail = (state, payload) => {
   };
 };
 
+const addHistory = (state, payload) => {
+  const status = state.searchHistory.filter(
+    (value) => value.uid === payload.uid,
+  ).length;
+  return {
+    ...state,
+    searchHistory: status
+      ? state.searchHistory
+      : [...state.searchHistory, payload],
+  };
+};
+const removeHistory = (state, payload) => {
+  console.log({payload});
+  return {
+    ...state,
+    searchHistory: state.searchHistory.filter((value) => value.uid !== payload),
+  };
+};
+const clearHistory = (state) => {
+  return {
+    ...state,
+    searchHistory: [],
+  };
+};
+
 export default (state = initialState, {type, payload}) => {
   switch (type) {
     case actions.AUTH_START:
@@ -166,6 +179,15 @@ export default (state = initialState, {type, payload}) => {
 
     case actions.UPDATE_PROFILE_FAIL:
       return updateProfileFail(state, payload);
+
+    case actions.ADD_SEARCH_HISTORY:
+      return addHistory(state, payload);
+
+    case actions.REMOVE_SEARCH_HISTORY:
+      return removeHistory(state, payload);
+
+    case actions.CLEAR_SEARCH_HISTORY:
+      return clearHistory(state);
 
     default:
       return state;

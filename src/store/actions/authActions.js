@@ -152,3 +152,21 @@ export const reloadUser = () => async (dispatch) => {
     }
   });
 };
+
+export const addSearchHistory = (data) => async (dispatch) => {
+  dispatch({
+    type: actions.ADD_SEARCH_HISTORY,
+    payload: data,
+  });
+};
+export const removeSearchHistory = (id) => async (dispatch) => {
+  dispatch({
+    type: actions.REMOVE_SEARCH_HISTORY,
+    payload: id,
+  });
+};
+export const clearSearchHistory = () => async (dispatch) => {
+  dispatch({
+    type: actions.CLEAR_SEARCH_HISTORY,
+  });
+};

@@ -8,6 +8,7 @@ import {
   View,
   Text,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import {
   responsiveFontSize,
@@ -19,14 +20,39 @@ import {fonts} from '../Constants/Fonts';
 import firestore from '@react-native-firebase/firestore';
 
 import storage from '@react-native-firebase/storage';
+import {
+  addSearchHistory,
+  clearSearchHistory,
+  removeSearchHistory,
+} from '../store/actions/authActions';
+import {connect} from 'react-redux';
 
-const SearchScreen = ({navigation}) => {
+const SearchScreen = ({
+  navigation,
+  addSearchHistory,
+  clearSearchHistory,
+  removeSearchHistory,
+  searchHistory,
+}) => {
+  console.log(searchHistory);
   const [search, setSearch] = useState('');
   const [result, setResult] = useState();
   const [searchStatus, setSearchStatus] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const fetchUsers = async () => {
+    if (searchHistory.length > 0) {
+      const status = searchHistory.filter((value) => value.userName === search);
+      if (status.length) {
+        removeSearchHistory(status[0].uid);
+        setResult({
+          uid: status[0].uid,
+          userName: status[0].userName,
+          profileUrl: status[0].profileUrl,
+        });
+        return;
+      }
+    }
     setSearchStatus(true);
     await firestore()
       .collection('userNames')
@@ -58,18 +84,28 @@ const SearchScreen = ({navigation}) => {
       .doc(uuid)
       .get()
       .then((dataSnapshot) => {
+        addSearchHistory(dataSnapshot._data);
         navigation.navigate('ProfileScreen', {
           data: dataSnapshot._data,
         });
       });
     setLoading(false);
+    setResult(null);
   };
 
-  const SearchUserCard = ({data}) => {
+  const SearchUserCard = ({data, fetch}) => {
     return (
       <TouchableHighlight
         underlayColor={Colors.bravoDark}
-        onPress={() => fetchUserData(data.uid)}
+        onPress={() => {
+          if (!fetch) {
+            navigation.navigate('ProfileScreen', {
+              data: data,
+            });
+          } else {
+            fetchUserData(data.uid);
+          }
+        }}
         style={{
           flexDirection: 'row',
 
@@ -115,14 +151,28 @@ const SearchScreen = ({navigation}) => {
               @UserName
             </Text>
           </View>
-          <Icon
-            name="chevron-forward"
-            style={{
-              color: Colors.bravo,
-              textAlignVertical: 'center',
-              fontSize: responsiveFontSize(5),
-            }}
-          />
+          {!fetch ? (
+            <Icon
+              name="close"
+              onPress={() => removeSearchHistory(data.uid)}
+              style={{
+                color: Colors.bravo,
+                textAlignVertical: 'center',
+                padding: 5,
+                fontSize: responsiveFontSize(3),
+              }}
+            />
+          ) : (
+            <Icon
+              name="chevron-forward"
+              style={{
+                color: Colors.bravo,
+                textAlignVertical: 'center',
+                padding: 5,
+                fontSize: responsiveFontSize(4.5),
+              }}
+            />
+          )}
         </>
       </TouchableHighlight>
     );
@@ -257,74 +307,139 @@ const SearchScreen = ({navigation}) => {
         </View>
       </View>
 
-      {loading && (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <ActivityIndicator size="large" color={Colors.bravo} />
-          <Text
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+        }}>
+        {loading && (
+          <View
             style={{
-              padding: 10,
-              fontFamily: fonts.acuminB,
-              fontSize: responsiveFontSize(1.8),
-              color: Colors.alpha,
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
             }}>
-            Redirecting. . .
-          </Text>
-        </View>
-      )}
-      {!loading && (
-        <>
-          {result && (
+            <ActivityIndicator size="large" color={Colors.bravo} />
             <Text
-              onPress={() => setResult()}
               style={{
-                paddingHorizontal: 10,
-                paddingVertical: 3,
-                textAlign: 'right',
+                padding: 10,
                 fontFamily: fonts.acuminB,
-                fontSize: responsiveFontSize(1.5),
-                color: Colors.bravoDark,
+                fontSize: responsiveFontSize(1.8),
+                color: Colors.alpha,
               }}>
-              Clear All
+              Redirecting. . .
             </Text>
-          )}
-          {result && <SearchUserCard data={result} />}
-          {result === false && (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <Text
+          </View>
+        )}
+        {!loading && (
+          <>
+            {result && (
+              <View
                 style={{
-                  color: Colors.alpha,
-                  fontSize: responsiveFontSize(1.8),
-                  fontFamily: fonts.acuminB,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
                 }}>
-                No User Found with this user
-              </Text>
-              <Text
+                <Text
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 3,
+                    fontFamily: fonts.acuminB,
+                    fontSize: responsiveFontSize(1.5),
+                    color: Colors.bravoDark,
+                  }}>
+                  Search Result
+                </Text>
+                <Text
+                  onPress={() => setResult()}
+                  style={{
+                    paddingHorizontal: 10,
+                    paddingVertical: 3,
+                    fontFamily: fonts.acuminB,
+                    fontSize: responsiveFontSize(1.5),
+                    color: Colors.bravoDark,
+                  }}>
+                  Clear All
+                </Text>
+              </View>
+            )}
+            {result && <SearchUserCard data={result} fetch={true} />}
+            {result === false && (
+              <View
                 style={{
-                  color: Colors.alpha,
-                  fontSize: responsiveFontSize(1.5),
-                  fontFamily: fonts.acuminB,
+                  height: responsiveHeight(18),
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}>
-                Check User name and try again
-              </Text>
-            </View>
-          )}
-        </>
-      )}
+                <Text
+                  style={{
+                    color: Colors.alpha,
+                    fontSize: responsiveFontSize(1.8),
+                    fontFamily: fonts.acuminB,
+                  }}>
+                  No User Found with this user
+                </Text>
+                <Text
+                  style={{
+                    color: Colors.alpha,
+                    fontSize: responsiveFontSize(1.5),
+                    fontFamily: fonts.acuminB,
+                  }}>
+                  Check User name and try again
+                </Text>
+              </View>
+            )}
+            {searchHistory.length > 0 && (
+              <>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <Text
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 3,
+                      fontFamily: fonts.acuminB,
+                      fontSize: responsiveFontSize(1.6),
+                      color: Colors.bravoDark,
+                    }}>
+                    Recently Visited
+                  </Text>
+                  <Text
+                    onPress={() => clearSearchHistory()}
+                    style={{
+                      paddingHorizontal: 10,
+                      paddingVertical: 3,
+                      fontFamily: fonts.acuminB,
+                      fontSize: responsiveFontSize(1.6),
+                      color: Colors.bravoDark,
+                    }}>
+                    Clear All
+                  </Text>
+                </View>
+                {searchHistory.map((value) => (
+                  <SearchUserCard data={value} key={value.uid} fetch={false} />
+                ))}
+              </>
+            )}
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 };
 
-export default SearchScreen;
+const mapDispatchToProps = {
+  addSearchHistory: (data) => addSearchHistory(data),
+  clearSearchHistory: () => clearSearchHistory(),
+
+  removeSearchHistory: (id) => removeSearchHistory(id),
+};
+
+const mapStateToProps = (state) => ({
+  searchHistory: state.auth.searchHistory,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchScreen);
 
 const styles = StyleSheet.create({
   container: {
