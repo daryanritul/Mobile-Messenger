@@ -17,7 +17,7 @@ const ContactScreen = ({navigation}) => {
       <Text>Contacts Profiles</Text>
       <Button
         title="View Profile"
-        onPress={() => navigation.navigate('ProfileScreen')}
+        onPress={() => navigation.navigate('ProfileScreen', {data: false})}
       />
     </View>
   );

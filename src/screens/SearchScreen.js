@@ -24,6 +24,7 @@ const SearchScreen = ({navigation}) => {
   const [search, setSearch] = useState('');
   const [result, setResult] = useState();
   const [searchStatus, setSearchStatus] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const fetchUsers = async () => {
     setSearchStatus(true);
@@ -50,15 +51,25 @@ const SearchScreen = ({navigation}) => {
     setSearchStatus(false);
   };
 
+  const fetchUserData = async (uuid) => {
+    setLoading(true);
+    await firestore()
+      .collection('users')
+      .doc(uuid)
+      .get()
+      .then((dataSnapshot) => {
+        navigation.navigate('ProfileScreen', {
+          data: dataSnapshot._data,
+        });
+      });
+    setLoading(false);
+  };
+
   const SearchUserCard = ({data}) => {
     return (
       <TouchableHighlight
         underlayColor={Colors.bravoDark}
-        onPress={() =>
-          navigation.navigate('ProfileScreen', {
-            uid: data.uid,
-          })
-        }
+        onPress={() => fetchUserData(data.uid)}
         style={{
           flexDirection: 'row',
 
@@ -130,6 +141,7 @@ const SearchScreen = ({navigation}) => {
           <TouchableHighlight
             onPress={() => navigation.goBack()}
             underlayColor={'rgba(256,256,256,0.5)'}
+            disabled={loading}
             style={{
               borderRadius: 60,
               height: 40,
@@ -183,7 +195,7 @@ const SearchScreen = ({navigation}) => {
               placeholderTextColor={Colors.charlieDark}
               value={search}
               onChangeText={(text) => setSearch(text)}
-              editable={!searchStatus}
+              editable={!searchStatus || !loading}
               style={{
                 width: '70%',
                 color: Colors.charlie,
@@ -224,6 +236,7 @@ const SearchScreen = ({navigation}) => {
                 }
               }}
               underlayColor={'rgba(256,256,256,0.5)'}
+              disabled={loading}
               style={{
                 borderRadius: 60,
                 height: 40,
@@ -243,45 +256,69 @@ const SearchScreen = ({navigation}) => {
           )}
         </View>
       </View>
-      {result && (
-        <Text
-          onPress={() => setResult()}
-          style={{
-            paddingHorizontal: 10,
-            paddingVertical: 3,
-            textAlign: 'right',
-            fontFamily: fonts.acuminB,
-            fontSize: responsiveFontSize(1.5),
-            color: Colors.bravoDark,
-          }}>
-          Clear All
-        </Text>
-      )}
-      {result && <SearchUserCard data={result} />}
-      {result === false && (
+
+      {loading && (
         <View
           style={{
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
           }}>
+          <ActivityIndicator size="large" color={Colors.bravo} />
           <Text
             style={{
-              color: Colors.alpha,
+              padding: 10,
+              fontFamily: fonts.acuminB,
               fontSize: responsiveFontSize(1.8),
-              fontFamily: fonts.acuminB,
-            }}>
-            No User Found with this user
-          </Text>
-          <Text
-            style={{
               color: Colors.alpha,
-              fontSize: responsiveFontSize(1.5),
-              fontFamily: fonts.acuminB,
             }}>
-            Check User name and try again
+            Redirecting. . .
           </Text>
         </View>
+      )}
+      {!loading && (
+        <>
+          {result && (
+            <Text
+              onPress={() => setResult()}
+              style={{
+                paddingHorizontal: 10,
+                paddingVertical: 3,
+                textAlign: 'right',
+                fontFamily: fonts.acuminB,
+                fontSize: responsiveFontSize(1.5),
+                color: Colors.bravoDark,
+              }}>
+              Clear All
+            </Text>
+          )}
+          {result && <SearchUserCard data={result} />}
+          {result === false && (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.8),
+                  fontFamily: fonts.acuminB,
+                }}>
+                No User Found with this user
+              </Text>
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontSize: responsiveFontSize(1.5),
+                  fontFamily: fonts.acuminB,
+                }}>
+                Check User name and try again
+              </Text>
+            </View>
+          )}
+        </>
       )}
     </View>
   );

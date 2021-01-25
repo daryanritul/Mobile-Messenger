@@ -79,7 +79,12 @@ const AppNavigator = () => {
           title: 'Mobile Messenger',
 
           headerRight: () => (
-            <Pressable onPress={() => navigation.navigate('ProfileScreen')}>
+            <Pressable
+              onPress={() =>
+                navigation.navigate('ProfileScreen', {
+                  data: false,
+                })
+              }>
               <Icon
                 name="account-box"
                 type="MaterialIcons"
