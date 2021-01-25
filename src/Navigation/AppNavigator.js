@@ -92,7 +92,14 @@ const AppNavigator = () => {
         })}
       />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
-      <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
+      <Stack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{
+          headerTransparent: true,
+          headerTitle: false,
+        }}
+      />
       <Stack.Screen name="SearchScreen" component={SearchScreen} />
       <Stack.Screen
         name="UpdateProfileScreen"
