@@ -51,17 +51,9 @@ const ContactScreen = ({
       });
     setLoading(false);
   };
-  console.log(friendState);
 
-  const FriendListCard = ({data, listType}) => {
-    const dataState =
-      listType === 'send'
-        ? data.friend2
-        : listType === 'receive'
-        ? data.friend1
-        : data.friend1;
-
-    console.log(dataState);
+  const RequestListCard = ({data}) => {
+    const dataState = data.friend1;
     const filteredByKey = Object.fromEntries(
       Object.entries(friendState.profileUrl).filter(
         ([key, value]) => key === dataState.uid,
@@ -96,7 +88,7 @@ const ContactScreen = ({
           />
           <View
             style={{
-              width: listType === 'list' ? '60%' : '40%',
+              width: '40%',
               height: '100%',
             }}>
             <Text
@@ -119,164 +111,283 @@ const ContactScreen = ({
               </Text>
             </Text>
           </View>
-          {listType === 'receive' && (
+
+          <TouchableHighlight
+            style={{
+              width: '20%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(130, 224, 170,0.3)',
+            }}
+            underlayColor="rgba(130, 224, 170,0.6)"
+            onPress={() => acceptRequest(data.uid)}>
             <>
-              <TouchableHighlight
+              <Icon
+                name="checkmark-sharp"
                 style={{
-                  width: '20%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: 'rgba(130, 224, 170,0.3)',
+                  color: '#196F3D',
+                  fontSize: responsiveFontSize(3.5),
                 }}
-                underlayColor="rgba(130, 224, 170,0.6)"
-                onPress={() => acceptRequest(data.uid)}>
-                <>
-                  <Icon
-                    name="checkmark-sharp"
-                    style={{
-                      color: '#196F3D',
-                      fontSize: responsiveFontSize(3.5),
-                    }}
-                  />
-                  <Text
-                    style={[
-                      styles.listButton,
-                      {
-                        color: '#196F3D',
-                      },
-                    ]}>
-                    Accept
-                  </Text>
-                </>
-              </TouchableHighlight>
-              <TouchableHighlight
-                style={{
-                  width: '20%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                  backgroundColor: 'rgba(236, 112, 99,0.3)',
-                }}
-                underlayColor="rgba(236, 112, 99,0.6)"
-                onPress={() => declineRequest(data.uid)}>
-                <>
-                  <Icon
-                    name="close"
-                    style={{
-                      color: '#E21717',
-                      fontSize: responsiveFontSize(3.5),
-                    }}
-                  />
-                  <Text
-                    style={[
-                      styles.listButton,
-                      {
-                        color: '#E21717',
-                      },
-                    ]}>
-                    Decline
-                  </Text>
-                </>
-              </TouchableHighlight>
+              />
+              <Text
+                style={[
+                  styles.listButton,
+                  {
+                    color: '#196F3D',
+                  },
+                ]}>
+                Accept
+              </Text>
             </>
-          )}
-          {listType === 'send' && (
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={{
+              width: '20%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              backgroundColor: 'rgba(236, 112, 99,0.3)',
+            }}
+            underlayColor="rgba(236, 112, 99,0.6)"
+            onPress={() => declineRequest(data.uid)}>
             <>
-              <TouchableHighlight
+              <Icon
+                name="close"
                 style={{
-                  width: '20%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                  backgroundColor: 'rgba(130, 224, 170,0.3)',
+                  color: '#E21717',
+                  fontSize: responsiveFontSize(3.5),
                 }}
-                underlayColor="rgba(130, 224, 170,0.6)"
-                onPress={() => console.log('ok')}>
-                <>
-                  <Icon
-                    name="account-clock"
-                    type="MaterialCommunityIcons"
-                    style={{
-                      color: '#196F3D',
-                      fontSize: responsiveFontSize(3.5),
-                    }}
-                  />
-                  <Text
-                    style={[
-                      styles.listButton,
-                      {
-                        color: '#196F3D',
-                      },
-                    ]}>
-                    Pending
-                  </Text>
-                </>
-              </TouchableHighlight>
-              <TouchableHighlight
-                style={{
-                  width: '20%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                  backgroundColor: 'rgba(236, 112, 99,0.3)',
-                }}
-                underlayColor="rgba(236, 112, 99,0.6)"
-                onPress={() => declineRequest(data.uid)}>
-                <>
-                  <Icon
-                    name="close"
-                    style={{
-                      color: '#E21717',
-                      fontSize: responsiveFontSize(3.5),
-                    }}
-                  />
-                  <Text
-                    style={[
-                      styles.listButton,
-                      {
-                        color: '#E21717',
-                      },
-                    ]}>
-                    Unsent
-                  </Text>
-                </>
-              </TouchableHighlight>
+              />
+              <Text
+                style={[
+                  styles.listButton,
+                  {
+                    color: '#E21717',
+                  },
+                ]}>
+                Decline
+              </Text>
             </>
-          )}
-          {listType === 'list' && (
+          </TouchableHighlight>
+        </>
+      </TouchableHighlight>
+    );
+  };
+  const SendListCard = ({data}) => {
+    const dataState = data.friend2;
+    const filteredByKey = Object.fromEntries(
+      Object.entries(friendState.profileUrl).filter(
+        ([key, value]) => key === dataState.uid,
+      ),
+    );
+
+    return (
+      <TouchableHighlight
+        underlayColor="rgba(214, 234, 248,1)"
+        onPress={() => {
+          fetchUserData(dataState.uid);
+        }}
+        style={{
+          flexDirection: 'row',
+          margin: 10,
+          marginTop: 3,
+          elevation: 2,
+          backgroundColor: Colors.charlie,
+          height: responsiveHeight(10),
+        }}>
+        <>
+          <Thumbnail
+            source={{
+              uri: Object.values(filteredByKey)[0],
+            }}
+            style={{
+              width: '20%',
+              height: '100%',
+            }}
+            large
+            square
+          />
+          <View
+            style={{
+              width: '40%',
+              height: '100%',
+            }}>
+            <Text
+              style={{
+                textAlignVertical: 'center',
+                paddingHorizontal: 5,
+                height: '100%',
+                fontFamily: fonts.acuminB,
+                fontSize: responsiveFontSize(1.8),
+                color: Colors.alpha,
+              }}>
+              {dataState.userName}
+              {'\n'}
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(1.5),
+                  color: Colors.charlieDark,
+                }}>
+                {'@username'}
+              </Text>
+            </Text>
+          </View>
+
+          <TouchableHighlight
+            style={{
+              width: '20%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              backgroundColor: 'rgba(130, 224, 170,0.3)',
+            }}
+            underlayColor="rgba(130, 224, 170,0.6)"
+            onPress={() => console.log('ok')}>
             <>
-              <TouchableHighlight
+              <Icon
+                name="account-clock"
+                type="MaterialCommunityIcons"
                 style={{
-                  width: '20%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                  backgroundColor: 'rgba(133, 193, 233,0.4)',
+                  color: '#196F3D',
+                  fontSize: responsiveFontSize(3.5),
                 }}
-                underlayColor="rgba(133, 193, 233,0.7)"
-                onPress={() => navigation.navigate('ChatScreen')}>
-                <>
-                  <Icon
-                    name="message"
-                    type="MaterialIcons"
-                    style={{
-                      color: Colors.bravo,
-                      fontSize: responsiveFontSize(3.5),
-                    }}
-                  />
-                  <Text
-                    style={[
-                      styles.listButton,
-                      {
-                        color: Colors.bravo,
-                      },
-                    ]}>
-                    Message
-                  </Text>
-                </>
-              </TouchableHighlight>
+              />
+              <Text
+                style={[
+                  styles.listButton,
+                  {
+                    color: '#196F3D',
+                  },
+                ]}>
+                Pending
+              </Text>
             </>
-          )}
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={{
+              width: '20%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              backgroundColor: 'rgba(236, 112, 99,0.3)',
+            }}
+            underlayColor="rgba(236, 112, 99,0.6)"
+            onPress={() => declineRequest(data.uid)}>
+            <>
+              <Icon
+                name="close"
+                style={{
+                  color: '#E21717',
+                  fontSize: responsiveFontSize(3.5),
+                }}
+              />
+              <Text
+                style={[
+                  styles.listButton,
+                  {
+                    color: '#E21717',
+                  },
+                ]}>
+                Unsent
+              </Text>
+            </>
+          </TouchableHighlight>
+        </>
+      </TouchableHighlight>
+    );
+  };
+
+  const FriendListCard = ({data}) => {
+    const dataState = data.friend1.uid === userId ? data.friend2 : data.friend1;
+
+    const filteredByKey = Object.fromEntries(
+      Object.entries(friendState.profileUrl).filter(
+        ([key, value]) => key === dataState.uid,
+      ),
+    );
+
+    return (
+      <TouchableHighlight
+        underlayColor="rgba(214, 234, 248,1)"
+        onPress={() => {
+          fetchUserData(dataState.uid);
+        }}
+        style={{
+          flexDirection: 'row',
+          margin: 10,
+          marginTop: 3,
+          elevation: 2,
+          backgroundColor: Colors.charlie,
+          height: responsiveHeight(10),
+        }}>
+        <>
+          <Thumbnail
+            source={{
+              uri: Object.values(filteredByKey)[0],
+            }}
+            style={{
+              width: '20%',
+              height: '100%',
+            }}
+            large
+            square
+          />
+          <View
+            style={{
+              width: '60%',
+              height: '100%',
+            }}>
+            <Text
+              style={{
+                textAlignVertical: 'center',
+                paddingHorizontal: 5,
+                height: '100%',
+                fontFamily: fonts.acuminB,
+                fontSize: responsiveFontSize(1.8),
+                color: Colors.alpha,
+              }}>
+              {dataState.userName}
+              {'\n'}
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(1.5),
+                  color: Colors.charlieDark,
+                }}>
+                {'@username'}
+              </Text>
+            </Text>
+          </View>
+
+          <TouchableHighlight
+            style={{
+              width: '20%',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+              backgroundColor: 'rgba(133, 193, 233,0.4)',
+            }}
+            underlayColor="rgba(133, 193, 233,0.7)"
+            onPress={() => navigation.navigate('ChatScreen')}>
+            <>
+              <Icon
+                name="message"
+                type="MaterialIcons"
+                style={{
+                  color: Colors.bravo,
+                  fontSize: responsiveFontSize(3.5),
+                }}
+              />
+              <Text
+                style={[
+                  styles.listButton,
+                  {
+                    color: Colors.bravo,
+                  },
+                ]}>
+                Message
+              </Text>
+            </>
+          </TouchableHighlight>
         </>
       </TouchableHighlight>
     );
@@ -292,16 +403,14 @@ const ContactScreen = ({
       <FlatList
         data={friendState.sentRequests}
         keyExtractor={(item) => item.uid}
-        renderItem={({item}) => <FriendListCard data={item} listType="send" />}
+        renderItem={({item}) => <SendListCard data={item} />}
       />
       <Text>Requests Received</Text>
 
       <FlatList
         data={friendState.receivedRequests}
         keyExtractor={(item) => item.uid}
-        renderItem={({item}) => (
-          <FriendListCard data={item} listType="receive" />
-        )}
+        renderItem={({item}) => <RequestListCard data={item} />}
       />
 
       <Text>My Friends</Text>
@@ -309,7 +418,7 @@ const ContactScreen = ({
       <FlatList
         data={friendState.list}
         keyExtractor={(item) => item.uid}
-        renderItem={({item}) => <FriendListCard data={item} listType="list" />}
+        renderItem={({item}) => <FriendListCard data={item} />}
       />
       {loading && (
         <View
@@ -345,7 +454,7 @@ const ContactScreen = ({
 
 const mapStateToProps = (state) => ({
   friendState: state.friends.friends,
-  userID: state.auth.user.uid,
+  userId: state.auth.user.uid,
 });
 
 const mapDispatchToProps = {

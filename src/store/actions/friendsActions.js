@@ -23,20 +23,34 @@ const filterFriends = (data) => {
 };
 
 export const declineRequest = (uid) => async (dispatch) => {
+  dispatch({
+    type: actions.REQUEST_DECLINE_START,
+  });
   await firestore()
     .collection('friends')
     .doc(uid)
     .delete()
-    .then(() => console.log('its Done'));
+    .then(() =>
+      dispatch({
+        type: actions.REQUEST_DECLINE_SUCCESS,
+      }),
+    );
 };
 export const acceptRequest = (uid) => async (dispatch) => {
+  dispatch({
+    type: actions.REQUEST_ACCEPT_START,
+  });
   await firestore()
     .collection('friends')
     .doc(uid)
     .update({
       status: true,
     })
-    .then(() => console.log('its Done'));
+    .then(() =>
+      dispatch({
+        type: actions.REQUEST_ACCEPT_START,
+      }),
+    );
 };
 
 export const sendRequest = (data) => async (dispatch) => {

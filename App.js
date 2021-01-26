@@ -11,6 +11,7 @@ import {Colors} from './src/Constants/Colors';
 import {connect, useDispatch} from 'react-redux';
 import {
   CLEAN_UP,
+  FRIENDS_CLEAN_UP,
   SET_FRIENDS,
   SET_USER,
   UPDATE_PROFILE_START,
@@ -49,7 +50,7 @@ const App = ({authState, fetchProifleUrl}) => {
         .where('friendId', 'array-contains', user.uid)
         .onSnapshot(async (documentSnapshot) => {
           const friendList = [];
-          documentSnapshot.docs.forEach((friend) =>
+          await documentSnapshot.docs.forEach((friend) =>
             friendList.push(friend._data),
           );
 
@@ -62,6 +63,9 @@ const App = ({authState, fetchProifleUrl}) => {
     } else {
       dispatch({
         type: CLEAN_UP,
+      });
+      dispatch({
+        type: FRIENDS_CLEAN_UP,
       });
     }
   };
