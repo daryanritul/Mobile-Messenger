@@ -23,10 +23,18 @@ import {signOut} from '../store/actions/authActions';
 
 import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
+import {sendRequest} from '../store/actions/friendsActions';
 
-const ProfileScreen = ({signOut, navigation, route, profileData}) => {
+const ProfileScreen = ({
+  signOut,
+  navigation,
+  route,
+  profileData,
+  sendRequest,
+  userId,
+}) => {
   const {data} = route.params;
-
+  console.log(userId);
   const dataState = data ? data : profileData;
   useLayoutEffect(() => {
     if (data === false)
@@ -211,30 +219,48 @@ const ProfileScreen = ({signOut, navigation, route, profileData}) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <Icon
-                name="account-plus"
-                type="MaterialCommunityIcons"
+              <TouchableOpacity
                 style={{
-                  color: Colors.alpha,
-                  fontSize: responsiveFontSize(4),
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
-              />
-              <Text
-                style={{
-                  color: Colors.alpha,
-                  fontSize: responsiveFontSize(1.3),
-                  fontFamily: fonts.acuminB,
-                }}>
-                Send Friend
-              </Text>
-              <Text
-                style={{
-                  color: Colors.alpha,
-                  fontSize: responsiveFontSize(1.3),
-                  fontFamily: fonts.acuminB,
-                }}>
-                Request
-              </Text>
+                onPress={() =>
+                  sendRequest({
+                    user: {
+                      uid: userId,
+                      userName: profileData.userName,
+                    },
+                    friend: {
+                      uid: dataState.uid,
+                      userName: dataState.userName,
+                    },
+                  })
+                }>
+                <Icon
+                  name="account-plus"
+                  type="MaterialCommunityIcons"
+                  style={{
+                    color: Colors.alpha,
+                    fontSize: responsiveFontSize(4),
+                  }}
+                />
+                <Text
+                  style={{
+                    color: Colors.alpha,
+                    fontSize: responsiveFontSize(1.3),
+                    fontFamily: fonts.acuminB,
+                  }}>
+                  Send Friend
+                </Text>
+                <Text
+                  style={{
+                    color: Colors.alpha,
+                    fontSize: responsiveFontSize(1.3),
+                    fontFamily: fonts.acuminB,
+                  }}>
+                  Request
+                </Text>
+              </TouchableOpacity>
             </View>
           </>
         )}
@@ -309,10 +335,12 @@ const ProfileScreen = ({signOut, navigation, route, profileData}) => {
 
 const mapDispatchToProps = {
   signOut: () => signOut(),
+  sendRequest: (data) => sendRequest(data),
 };
 
 const mapStateToProps = (state) => ({
   profileData: state.auth.profileData,
+  userId: state.auth.user.uid,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileScreen);
