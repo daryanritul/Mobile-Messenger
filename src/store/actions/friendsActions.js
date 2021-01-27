@@ -17,10 +17,6 @@ export const setFriends = (data) => async (dispatch) => {
   });
 };
 
-const filterFriends = (data) => {
-  return {};
-};
-
 export const declineRequest = (uid) => async (dispatch) => {
   dispatch({
     type: actions.REQUEST_DECLINE_START,
