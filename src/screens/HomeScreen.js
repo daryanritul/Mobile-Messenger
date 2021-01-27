@@ -14,6 +14,10 @@ const HomeScreen = ({navigation}) => {
         title="Go to Chats"
         onPress={() => navigation.navigate('ChatScreen')}
       />
+      <Button
+        title="Go to Search"
+        onPress={() => navigation.navigate('SearchScreen')}
+      />
     </View>
   );
 };

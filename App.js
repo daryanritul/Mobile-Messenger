@@ -11,6 +11,7 @@ import {Colors} from './src/Constants/Colors';
 import {connect, useDispatch} from 'react-redux';
 import {
   CLEAN_UP,
+  FRIENDS_CLEAN_UP,
   SET_USER,
   UPDATE_PROFILE_START,
   UPDATE_PROFILE_SUCCESS,
@@ -19,8 +20,9 @@ import {
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import Loading from './src/Components/Loading';
+import {fetchFriendsList} from './src/store/actions/friendsActions';
 
-const App = ({authState}) => {
+const App = ({authState, friendState, fetchFriendsList}) => {
   const dispatch = useDispatch();
 
   const onAuthStateChanged = async (user) => {
@@ -32,7 +34,7 @@ const App = ({authState}) => {
         type: SET_USER,
         payload: user,
       });
-
+      console.log('Current User ID is  : ', user.uid);
       await firestore()
         .collection('users')
         .doc(user.uid)
@@ -42,7 +44,14 @@ const App = ({authState}) => {
             payload: documentSnapshot._data,
           });
         });
+      if (!friendState.list) {
+        fetchFriendsList(user.uid);
+        console.log(user.uid);
+      }
     } else {
+      dispatch({
+        type: FRIENDS_CLEAN_UP,
+      });
       dispatch({
         type: CLEAN_UP,
       });
@@ -56,7 +65,6 @@ const App = ({authState}) => {
   if (authState.Loading || authState.recoverPassword.loading) {
     return <Loading />;
   }
-
   return (
     <NavigationContainer>
       {authState.user && !authState.user.emailVerified ? (
@@ -77,8 +85,11 @@ const App = ({authState}) => {
 
 const mapStateToProps = (state) => ({
   authState: state.auth,
+  friendState: state.friends,
 });
 
-const mapDispatchToProps = {};
+const mapDispatchToProps = {
+  fetchFriendsList: (uid) => fetchFriendsList(uid),
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);
