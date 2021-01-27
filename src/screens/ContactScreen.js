@@ -1,14 +1,11 @@
-import {Button, Icon, Thumbnail} from 'native-base';
-import React, {useEffect, useState} from 'react';
+import {Icon, Thumbnail} from 'native-base';
+import React, {useState} from 'react';
 import {
-  Pressable,
   StyleSheet,
-  TextInput,
   TouchableHighlight,
   View,
   Text,
   ActivityIndicator,
-  ScrollView,
   FlatList,
 } from 'react-native';
 import {
@@ -21,6 +18,7 @@ import {connect} from 'react-redux';
 import {
   acceptRequest,
   declineRequest,
+  fetchFriendsList,
   fetchProifleUrl,
   sendRequest,
 } from '../store/actions/friendsActions';
@@ -32,17 +30,8 @@ const ContactScreen = ({
   friendState,
   declineRequest,
   acceptRequest,
-  fetchProifleUrl,
-  sendRequest,
-  userId,
 }) => {
   const [loading, setLoading] = useState(false);
-
-  // useEffect(() => {
-  //   dispatch({
-  //     type: FETCH_PROFILE_URL,
-  //   });
-  // },[])
 
   const fetchUserData = async (uuid) => {
     setLoading(true);
@@ -78,7 +67,7 @@ const ContactScreen = ({
         <>
           <Thumbnail
             source={{
-              uri: Object.values(filteredByKey)[0],
+              uri: data.profileUrl,
             }}
             style={{
               width: '20%',
@@ -176,7 +165,6 @@ const ContactScreen = ({
   };
   const SendListCard = ({data}) => {
     const dataState = data.list;
-    const filteredByKey = 'ss';
 
     return (
       <TouchableHighlight
@@ -195,7 +183,7 @@ const ContactScreen = ({
         <>
           <Thumbnail
             source={{
-              uri: Object.values(filteredByKey)[0],
+              uri: data.profileUrl,
             }}
             style={{
               width: '20%',
@@ -297,8 +285,6 @@ const ContactScreen = ({
   const FriendListCard = ({data}) => {
     const dataState = data.list;
 
-    const filteredByKey = 'ss';
-
     return (
       <TouchableHighlight
         underlayColor="rgba(214, 234, 248,1)"
@@ -316,7 +302,7 @@ const ContactScreen = ({
         <>
           <Thumbnail
             source={{
-              uri: Object.values(filteredByKey)[0],
+              uri: data.profileUrl,
             }}
             style={{
               width: '20%',
@@ -432,29 +418,17 @@ const ContactScreen = ({
           </Text>
         </View>
       )}
-      {/* <Button
-        title="Go to Search"
-        onPress={() => navigation.navigate('SearchScreen')}
-      />
-      <Text>Contacts Profiles</Text>
-      <Button
-        title="View Profile"
-        onPress={() => navigation.navigate('ProfileScreen', {data: false})}
-      /> */}
     </View>
   );
 };
 
 const mapStateToProps = (state) => ({
-  friendState: state.friends.friends.list,
-  userId: state.auth.user.uid,
+  friendState: state.friends.friendsList,
 });
 
 const mapDispatchToProps = {
   declineRequest: (uid1, uid2) => declineRequest(uid1, uid2),
   acceptRequest: (uid1, uid2) => acceptRequest(uid1, uid2),
-  sendRequest: (data1, data2) => sendRequest(data1, data2),
-  fetchProifleUrl: (url) => fetchProifleUrl(url),
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContactScreen);

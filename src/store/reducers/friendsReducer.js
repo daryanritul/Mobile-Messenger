@@ -1,20 +1,11 @@
 import * as actions from '../actions/actions.types';
 
-import auth from '@react-native-firebase/auth';
-
-const userId = auth().currentUser ? auth().currentUser.uid : '';
-
 const initialState = {
   declineLoading: false,
   acceptLoading: false,
   requestLoading: false,
   loading: false,
-  friends: {
-    list: [],
-    receivedRequests: [],
-    sentRequests: [],
-    profileUrl: {},
-  },
+  friendsList: [],
 };
 
 const cleanUp = (state) => {
@@ -23,12 +14,7 @@ const cleanUp = (state) => {
     acceptLoading: false,
     requestLoading: false,
     loading: false,
-    friends: {
-      list: [],
-      receivedRequests: [],
-      sentRequests: [],
-      profileUrl: {},
-    },
+    friendsList: [],
   };
 };
 
@@ -43,10 +29,7 @@ const setFriendsList = (state, payload) => {
   return {
     ...state,
     loading: false,
-    friends: {
-      ...state.friends,
-      list: payload,
-    },
+    friendsList: payload,
   };
 };
 
@@ -71,13 +54,8 @@ const declineRequestSucess = (state) => {
 };
 
 const fetchFriendsProfileUrl = (state, payload) => {
-  return {
-    ...state,
-    friends: {
-      ...state.friends,
-      profileUrl: {...state.friends.profileUrl, ...payload},
-    },
-  };
+  console.log('i am here');
+  return state;
 };
 
 const requestStart = (state) => {

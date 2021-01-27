@@ -11,11 +11,7 @@ import {Colors} from './src/Constants/Colors';
 import {connect, useDispatch} from 'react-redux';
 import {
   CLEAN_UP,
-  FETCH_PROFILE_URL,
   FRIENDS_CLEAN_UP,
-  SET_FRIENDS,
-  SET_FRIENDS_END,
-  SET_FRIENDS_START,
   SET_USER,
   UPDATE_PROFILE_START,
   UPDATE_PROFILE_SUCCESS,
@@ -24,12 +20,9 @@ import {
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import Loading from './src/Components/Loading';
-import {
-  fetchFriendsList,
-  fetchProifleUrl,
-} from './src/store/actions/friendsActions';
+import {fetchFriendsList} from './src/store/actions/friendsActions';
 
-const App = ({authState, fetchProifleUrl, friendState, fetchFriendsList}) => {
+const App = ({authState, friendState, fetchFriendsList}) => {
   const dispatch = useDispatch();
 
   const onAuthStateChanged = async (user) => {
@@ -51,7 +44,10 @@ const App = ({authState, fetchProifleUrl, friendState, fetchFriendsList}) => {
             payload: documentSnapshot._data,
           });
         });
-      await fetchFriendsList(user.uid);
+      if (!friendState.list) {
+        fetchFriendsList(user.uid);
+        console.log(user.uid);
+      }
     } else {
       dispatch({
         type: FRIENDS_CLEAN_UP,
@@ -69,9 +65,6 @@ const App = ({authState, fetchProifleUrl, friendState, fetchFriendsList}) => {
   if (authState.Loading || authState.recoverPassword.loading) {
     return <Loading />;
   }
-
-  // console.log(friendState);
-
   return (
     <NavigationContainer>
       {authState.user && !authState.user.emailVerified ? (
@@ -96,7 +89,6 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  fetchProifleUrl: (data) => fetchProifleUrl(data),
   fetchFriendsList: (uid) => fetchFriendsList(uid),
 };
 

@@ -11,7 +11,6 @@ const userId = auth().currentUser ? auth().currentUser.uid : '';
 import storage from '@react-native-firebase/storage';
 
 export const setFriends = (data) => async (dispatch) => {
-  //  console.log({data});
   dispatch({
     type: actions.SET_FRIENDS,
     payload: data,
@@ -78,13 +77,24 @@ export const fetchFriendsList = (uid) => async (dispatch) => {
     .where('friendId', 'array-contains', uid)
     .onSnapshot(async (documentSnapshot) => {
       const friendList = [];
-      await documentSnapshot.docs.forEach((friend) =>
-        friendList.push({
-          list:
+      await Promise.all(
+        documentSnapshot.docs.map(async (friend) => {
+          const uuid =
             friend._data.friend1.uid === uid
-              ? friend._data.friend2
-              : friend._data.friend1,
-          uid: friend._data.uid,
+              ? friend._data.friend2.uid
+              : friend._data.friend1.uid;
+          const storageRef = await storage().ref(
+            'users/profilePicture/' + uuid,
+          );
+          const url = await storageRef.getDownloadURL();
+          friendList.push({
+            list:
+              friend._data.friend1.uid === uid
+                ? friend._data.friend2
+                : friend._data.friend1,
+            uid: friend._data.uid,
+            profileUrl: url,
+          });
         }),
       );
 
@@ -95,23 +105,5 @@ export const fetchFriendsList = (uid) => async (dispatch) => {
     });
   dispatch({
     type: actions.SET_FRIENDS_END,
-  });
-};
-
-export const fetchProifleUrl = (data) => async (dispatch) => {
-  console.log('hello');
-  data.map(async (value) => {
-    const uid =
-      value.friend1.uid === userId ? value.friend2.uid : value.friend1.uid;
-    const storageRef = await storage().ref('users/profilePicture/' + uid);
-
-    await storageRef.getDownloadURL().then((object) => {
-      dispatch({
-        type: actions.FETCH_PROFILE_URL,
-        payload: {
-          [uid]: object,
-        },
-      });
-    });
   });
 };
