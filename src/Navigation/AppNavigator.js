@@ -3,7 +3,7 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 
-import ContactScreen from '../screens/ContactScreen';
+import FriendsScreen from '../screens/FriendsScreen';
 import HomeScreen from '../screens/HomeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import ChatScreen from '../screens/ChatScreen';
@@ -47,10 +47,10 @@ const AppTabs = () => {
         }}
       />
       <TopTabs.Screen
-        name="ContactScreen"
-        component={ContactScreen}
+        name="FriendsScreen"
+        component={FriendsScreen}
         options={{
-          title: 'Contacts',
+          title: 'Friends',
         }}
       />
     </TopTabs.Navigator>
