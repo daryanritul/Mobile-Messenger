@@ -1,4 +1,4 @@
-import {Icon, Thumbnail} from 'native-base';
+import {Badge, Icon, Thumbnail, Fab, Button} from 'native-base';
 import React, {useState} from 'react';
 import {
   StyleSheet,
@@ -24,14 +24,25 @@ import {
 } from '../store/actions/friendsActions';
 
 import firestore from '@react-native-firebase/firestore';
+import {TextInput} from 'react-native-gesture-handler';
 
-const ContactScreen = ({
+const FriendsScreen = ({
   navigation,
   friendState,
   declineRequest,
   acceptRequest,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState(false);
+  const [search, setSearch] = useState('');
+  const friends = friendState.filter(
+    (value) => value.list.status === 'friends',
+  );
+
+  const receive = friendState.filter(
+    (value) => value.list.status === 'receive',
+  );
+  const sent = friendState.filter((value) => value.list.status === 'sent');
 
   const fetchUserData = async (uuid) => {
     setLoading(true);
@@ -376,30 +387,120 @@ const ContactScreen = ({
     <View
       style={{
         flex: 1,
+        backgroundColor: Colors.charlie,
       }}>
-      <Text>Requests Pending</Text>
-
-      <FlatList
-        data={friendState.filter((value) => value.list.status === 'sent')}
-        keyExtractor={(item) => item.uid}
-        renderItem={({item}) => <SendListCard data={item} />}
-      />
-      <Text>Requests Received</Text>
-
-      <FlatList
-        data={friendState.filter((value) => value.list.status === 'receive')}
-        keyExtractor={(item) => item.uid}
-        renderItem={({item}) => <RequestListCard data={item} />}
-      />
-
-      <Text>My Friends</Text>
-
-      <FlatList
-        data={friendState.filter((value) => value.list.status === 'friends')}
-        keyExtractor={(item) => item.uid}
-        renderItem={({item}) => <FriendListCard data={item} />}
-      />
-      {loading && (
+      <View
+        style={{
+          backgroundColor: Colors.charlie,
+          alignItems: 'center',
+          flexDirection: 'row',
+          height: responsiveHeight(7),
+          margin: 10,
+          marginTop: 3,
+          //  width: '100%',
+          justifyContent: 'space-between',
+        }}>
+        <View
+          style={{
+            borderWidth: 1,
+            borderRadius: 50,
+            borderColor: Colors.bravoDark,
+            alignItems: 'center',
+            flexDirection: 'row',
+            width: '75%',
+            marginLeft: 5,
+            height: '85%',
+          }}>
+          <Icon
+            name="search"
+            style={{
+              color: Colors.bravo,
+              fontSize: responsiveFontSize(3),
+              width: '15%',
+              textAlign: 'center',
+            }}
+          />
+          <TextInput
+            placeholder="Search Friends"
+            style={{
+              width: '70%',
+            }}
+            value={search}
+            onChangeText={(text) => setSearch(text)}
+            editable={!mode}
+          />
+          <Icon
+            name="close-circle"
+            style={{
+              color: Colors.bravo,
+              fontSize: responsiveFontSize(3),
+              width: '15%',
+              textAlign: 'center',
+            }}
+          />
+        </View>
+        <TouchableHighlight
+          style={{
+            width: '20%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+            backgroundColor: 'rgba(133, 193, 233,0.4)',
+          }}
+          underlayColor="rgba(133, 193, 233,0.7)"
+          onPress={() => setMode(!mode)}>
+          <>
+            {receive.length > 0 && !mode && (
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(1),
+                  position: 'absolute',
+                  top: 5,
+                  right: 5,
+                  backgroundColor: 'red',
+                  height: 15,
+                  width: 15,
+                  textAlign: 'center',
+                  color: Colors.charlie,
+                  fontFamily: fonts.acuminB,
+                  borderRadius: 50,
+                  textAlignVertical: 'center',
+                }}>
+                {receive.length}
+              </Text>
+            )}
+            <Icon
+              name={!mode ? 'account-plus' : 'step-backward-2'}
+              type="MaterialCommunityIcons"
+              style={{
+                color: Colors.bravo,
+                fontSize: responsiveFontSize(3.2),
+              }}
+            />
+            <Text
+              style={[
+                styles.listButton,
+                {
+                  color: Colors.bravo,
+                  fontSize: responsiveFontSize(1.3),
+                },
+              ]}>
+              {mode ? 'Go Back' : 'Requests'}
+            </Text>
+          </>
+        </TouchableHighlight>
+      </View>
+      <Text
+        style={{
+          color: Colors.alpha,
+          fontFamily: fonts.acuminB,
+          marginHorizontal: 10,
+        }}>
+        {mode
+          ? `Friend Requests (${receive.length})`
+          : ` My Friends (${friends.length})`}
+      </Text>
+      {loading ? (
         <View
           style={{
             flex: 1,
@@ -417,7 +518,69 @@ const ContactScreen = ({
             Redirecting. . .
           </Text>
         </View>
+      ) : (
+        <View>
+          {mode &&
+            (receive.length ? (
+              <FlatList
+                data={receive}
+                keyExtractor={(item) => item.uid}
+                renderItem={({item}) => <RequestListCard data={item} />}
+              />
+            ) : (
+              <View
+                style={{
+                  margin: 10,
+                  height: responsiveHeight(9),
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <Text
+                  style={{
+                    padding: 10,
+                    fontFamily: fonts.acuminB,
+                    fontSize: responsiveFontSize(1.8),
+                    color: Colors.alpha,
+                  }}>
+                  You Have No Friends Requests!
+                </Text>
+              </View>
+            ))}
+          {mode && sent.length > 0 && (
+            <>
+              <Text
+                style={{
+                  color: Colors.alpha,
+                  fontFamily: fonts.acuminB,
+                  marginHorizontal: 10,
+                }}>
+                {`Your Pending Sent Requests (${receive.length})`}
+              </Text>
+              <FlatList
+                data={sent}
+                keyExtractor={(item) => item.uid}
+                renderItem={({item}) => <SendListCard data={item} />}
+              />
+            </>
+          )}
+
+          {!mode && (
+            <FlatList
+              data={friends}
+              keyExtractor={(item) => item.uid}
+              renderItem={({item}) => <FriendListCard data={item} />}
+            />
+          )}
+        </View>
       )}
+      <Fab
+        position="bottomRight"
+        style={{
+          backgroundColor: Colors.bravo,
+        }}
+        onPress={() => navigation.navigate('SearchScreen')}>
+        <Icon name="search" />
+      </Fab>
     </View>
   );
 };
@@ -431,7 +594,7 @@ const mapDispatchToProps = {
   acceptRequest: (uid1, uid2) => acceptRequest(uid1, uid2),
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ContactScreen);
+export default connect(mapStateToProps, mapDispatchToProps)(FriendsScreen);
 
 const styles = StyleSheet.create({
   listButton: {
