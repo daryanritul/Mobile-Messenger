@@ -18,22 +18,42 @@ const initialState = {
 };
 
 const cleanUp = (state) => {
-  return initialState;
+  return {
+    declineLoading: false,
+    acceptLoading: false,
+    requestLoading: false,
+    loading: false,
+    friends: {
+      list: [],
+      receivedRequests: [],
+      sentRequests: [],
+      profileUrl: {},
+    },
+  };
+};
+
+const setFriendsStart = (state) => {
+  return {
+    ...state,
+    loading: true,
+  };
 };
 
 const setFriendsList = (state, payload) => {
   return {
     ...state,
+    loading: false,
     friends: {
       ...state.friends,
-      list: payload.filter((value) => value.status === true),
-      receivedRequests: payload.filter(
-        (value) => value.status === false && value.friend2.uid === userId,
-      ),
-      sentRequests: payload.filter(
-        (value) => value.status === false && value.friend1.uid === userId,
-      ),
+      list: payload,
     },
+  };
+};
+
+const setFriendsEnd = (state) => {
+  return {
+    ...state,
+    loading: false,
   };
 };
 
@@ -88,8 +108,14 @@ const acceptSuccess = (state) => {
 };
 export default (state = initialState, {type, payload}) => {
   switch (type) {
+    case actions.SET_FRIENDS_START:
+      return setFriendsStart(state);
+
     case actions.SET_FRIENDS:
       return setFriendsList(state, payload);
+
+    case actions.SET_FRIENDS_START:
+      return setFriendsEnd(state);
 
     case actions.REQUEST_DECLINE_START:
       return declineRequestStart(state);

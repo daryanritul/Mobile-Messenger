@@ -38,6 +38,12 @@ const ContactScreen = ({
 }) => {
   const [loading, setLoading] = useState(false);
 
+  // useEffect(() => {
+  //   dispatch({
+  //     type: FETCH_PROFILE_URL,
+  //   });
+  // },[])
+
   const fetchUserData = async (uuid) => {
     setLoading(true);
     await firestore()
@@ -53,18 +59,13 @@ const ContactScreen = ({
   };
 
   const RequestListCard = ({data}) => {
-    const dataState = data.friend1;
-    const filteredByKey = Object.fromEntries(
-      Object.entries(friendState.profileUrl).filter(
-        ([key, value]) => key === dataState.uid,
-      ),
-    );
-
+    const dataState = data.list;
+    const filteredByKey = 'ss';
     return (
       <TouchableHighlight
         underlayColor="rgba(214, 234, 248,1)"
         onPress={() => {
-          fetchUserData(dataState.uid);
+          fetchUserData(data.list.uid);
         }}
         style={{
           flexDirection: 'row',
@@ -174,18 +175,14 @@ const ContactScreen = ({
     );
   };
   const SendListCard = ({data}) => {
-    const dataState = data.friend2;
-    const filteredByKey = Object.fromEntries(
-      Object.entries(friendState.profileUrl).filter(
-        ([key, value]) => key === dataState.uid,
-      ),
-    );
+    const dataState = data.list;
+    const filteredByKey = 'ss';
 
     return (
       <TouchableHighlight
         underlayColor="rgba(214, 234, 248,1)"
         onPress={() => {
-          fetchUserData(dataState.uid);
+          fetchUserData(data.list.uid);
         }}
         style={{
           flexDirection: 'row',
@@ -298,19 +295,15 @@ const ContactScreen = ({
   };
 
   const FriendListCard = ({data}) => {
-    const dataState = data.friend1.uid === userId ? data.friend2 : data.friend1;
+    const dataState = data.list;
 
-    const filteredByKey = Object.fromEntries(
-      Object.entries(friendState.profileUrl).filter(
-        ([key, value]) => key === dataState.uid,
-      ),
-    );
+    const filteredByKey = 'ss';
 
     return (
       <TouchableHighlight
         underlayColor="rgba(214, 234, 248,1)"
         onPress={() => {
-          fetchUserData(dataState.uid);
+          fetchUserData(data.list.uid);
         }}
         style={{
           flexDirection: 'row',
@@ -401,14 +394,14 @@ const ContactScreen = ({
       <Text>Requests Pending</Text>
 
       <FlatList
-        data={friendState.sentRequests}
+        data={friendState.filter((value) => value.list.status === 'sent')}
         keyExtractor={(item) => item.uid}
         renderItem={({item}) => <SendListCard data={item} />}
       />
       <Text>Requests Received</Text>
 
       <FlatList
-        data={friendState.receivedRequests}
+        data={friendState.filter((value) => value.list.status === 'receive')}
         keyExtractor={(item) => item.uid}
         renderItem={({item}) => <RequestListCard data={item} />}
       />
@@ -416,7 +409,7 @@ const ContactScreen = ({
       <Text>My Friends</Text>
 
       <FlatList
-        data={friendState.list}
+        data={friendState.filter((value) => value.list.status === 'friends')}
         keyExtractor={(item) => item.uid}
         renderItem={({item}) => <FriendListCard data={item} />}
       />
@@ -453,7 +446,7 @@ const ContactScreen = ({
 };
 
 const mapStateToProps = (state) => ({
-  friendState: state.friends.friends,
+  friendState: state.friends.friends.list,
   userId: state.auth.user.uid,
 });
 

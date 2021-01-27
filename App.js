@@ -11,8 +11,11 @@ import {Colors} from './src/Constants/Colors';
 import {connect, useDispatch} from 'react-redux';
 import {
   CLEAN_UP,
+  FETCH_PROFILE_URL,
   FRIENDS_CLEAN_UP,
   SET_FRIENDS,
+  SET_FRIENDS_END,
+  SET_FRIENDS_START,
   SET_USER,
   UPDATE_PROFILE_START,
   UPDATE_PROFILE_SUCCESS,
@@ -21,9 +24,12 @@ import {
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import Loading from './src/Components/Loading';
-import {fetchProifleUrl} from './src/store/actions/friendsActions';
+import {
+  fetchFriendsList,
+  fetchProifleUrl,
+} from './src/store/actions/friendsActions';
 
-const App = ({authState, fetchProifleUrl}) => {
+const App = ({authState, fetchProifleUrl, friendState, fetchFriendsList}) => {
   const dispatch = useDispatch();
 
   const onAuthStateChanged = async (user) => {
@@ -35,7 +41,7 @@ const App = ({authState, fetchProifleUrl}) => {
         type: SET_USER,
         payload: user,
       });
-
+      console.log('Current User ID is  : ', user.uid);
       await firestore()
         .collection('users')
         .doc(user.uid)
@@ -45,27 +51,13 @@ const App = ({authState, fetchProifleUrl}) => {
             payload: documentSnapshot._data,
           });
         });
-      await firestore()
-        .collection('friends')
-        .where('friendId', 'array-contains', user.uid)
-        .onSnapshot(async (documentSnapshot) => {
-          const friendList = [];
-          await documentSnapshot.docs.forEach((friend) =>
-            friendList.push(friend._data),
-          );
-
-          await fetchProifleUrl(friendList);
-          dispatch({
-            type: SET_FRIENDS,
-            payload: friendList,
-          });
-        });
+      await fetchFriendsList(user.uid);
     } else {
       dispatch({
-        type: CLEAN_UP,
+        type: FRIENDS_CLEAN_UP,
       });
       dispatch({
-        type: FRIENDS_CLEAN_UP,
+        type: CLEAN_UP,
       });
     }
   };
@@ -77,6 +69,8 @@ const App = ({authState, fetchProifleUrl}) => {
   if (authState.Loading || authState.recoverPassword.loading) {
     return <Loading />;
   }
+
+  // console.log(friendState);
 
   return (
     <NavigationContainer>
@@ -98,10 +92,12 @@ const App = ({authState, fetchProifleUrl}) => {
 
 const mapStateToProps = (state) => ({
   authState: state.auth,
+  friendState: state.friends,
 });
 
 const mapDispatchToProps = {
   fetchProifleUrl: (data) => fetchProifleUrl(data),
+  fetchFriendsList: (uid) => fetchFriendsList(uid),
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

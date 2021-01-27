@@ -44,7 +44,8 @@ export const acceptRequest = (uid) => async (dispatch) => {
     .collection('friends')
     .doc(uid)
     .update({
-      status: true,
+      ['friend1.status']: 'friends',
+      ['friend2.status']: 'friends',
     })
     .then(() =>
       dispatch({
@@ -68,7 +69,37 @@ export const sendRequest = (data) => async (dispatch) => {
     .then(() => console.log('Operation Sucess'));
 };
 
+export const fetchFriendsList = (uid) => async (dispatch) => {
+  dispatch({
+    type: actions.SET_FRIENDS_START,
+  });
+  await firestore()
+    .collection('friends')
+    .where('friendId', 'array-contains', uid)
+    .onSnapshot(async (documentSnapshot) => {
+      const friendList = [];
+      await documentSnapshot.docs.forEach((friend) =>
+        friendList.push({
+          list:
+            friend._data.friend1.uid === uid
+              ? friend._data.friend2
+              : friend._data.friend1,
+          uid: friend._data.uid,
+        }),
+      );
+
+      dispatch({
+        type: actions.SET_FRIENDS,
+        payload: friendList,
+      });
+    });
+  dispatch({
+    type: actions.SET_FRIENDS_END,
+  });
+};
+
 export const fetchProifleUrl = (data) => async (dispatch) => {
+  console.log('hello');
   data.map(async (value) => {
     const uid =
       value.friend1.uid === userId ? value.friend2.uid : value.friend1.uid;

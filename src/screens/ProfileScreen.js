@@ -229,10 +229,12 @@ const ProfileScreen = ({
                     user: {
                       uid: userId,
                       userName: profileData.userName,
+                      status: 'receive',
                     },
                     friend: {
                       uid: dataState.uid,
                       userName: dataState.userName,
+                      status: 'sent',
                     },
                   })
                 }>
