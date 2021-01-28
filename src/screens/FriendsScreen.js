@@ -138,7 +138,11 @@ const FriendsScreen = ({
                 iconName={'message'}
                 iconType={'MaterialIcons'}
                 label={'Message'}
-                onPressHandler={() => navigation.navigate('ChatScreen')}
+                onPressHandler={() =>
+                  navigation.navigate('ChatScreen', {
+                    data: itemData.uid,
+                  })
+                }
                 loading={false}
                 blue
                 small
