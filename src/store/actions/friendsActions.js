@@ -44,14 +44,16 @@ export const acceptRequest = (uid) => async (dispatch) => {
     })
     .then(() =>
       dispatch({
-        type: actions.REQUEST_ACCEPT_START,
+        type: actions.REQUEST_ACCEPT_SUCCESS,
       }),
     );
 };
 
 export const sendRequest = (data) => async (dispatch) => {
   const {user, friend} = data;
-
+  dispatch({
+    type: actions.REQUEST_START,
+  });
   const friendRef = await firestore().collection('friends').doc();
   await friendRef
     .set({
@@ -61,7 +63,11 @@ export const sendRequest = (data) => async (dispatch) => {
       friend2: friend,
       status: false,
     })
-    .then(() => console.log('Operation Sucess'));
+    .then(() =>
+      dispatch({
+        type: actions.REQUEST_SUCESS,
+      }),
+    );
 };
 
 export const fetchFriendsList = (uid) => async (dispatch) => {

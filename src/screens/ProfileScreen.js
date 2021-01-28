@@ -1,4 +1,5 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useLayoutEffect} from 'react';
+
 import {
   ImageBackground,
   StyleSheet,
@@ -8,6 +9,7 @@ import {
   View,
   Alert,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 
 import {Icon} from 'native-base';
@@ -17,16 +19,16 @@ import {
   responsiveHeight,
   responsiveWidth,
 } from 'react-native-responsive-dimensions';
-
-import {connect} from 'react-redux';
-import {signOut} from '../store/actions/authActions';
-
 import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
+
+import {connect} from 'react-redux';
+
 import {
   acceptRequest,
   declineRequest,
   sendRequest,
+  signOut,
 } from '../store/actions/friendsActions';
 
 const ProfileScreen = ({
@@ -39,24 +41,29 @@ const ProfileScreen = ({
   sendRequest,
   userId,
   friends,
+  userEmail,
 }) => {
   const {data} = route.params;
 
-  const friend = friends.filter((value) => value.list.status === 'friends');
+  const friend = friends.friendsList.filter(
+    (value) => value.list.status === 'friends',
+  );
 
   const dataState = data ? data : profileData;
 
-  const checkList = friends.filter((value) => value.list.uid === data.uid);
+  const checkList = friends.friendsList.filter(
+    (value) => value.list.uid === data.uid,
+  );
 
   const checkfriend = data
-    ? checkList.length
+    ? data.uid === userId
+      ? 'me'
+      : checkList.length
       ? checkList[0].list.status
       : 'unknown'
     : 'me';
 
   const docId = checkList.length ? checkList[0].uid : '';
-
-  console.log(checkfriend, docId);
 
   useLayoutEffect(() => {
     if (data === false)
@@ -88,32 +95,99 @@ const ProfileScreen = ({
       <View
         style={{
           backgroundColor: Colors.charlie,
-          padding: 5,
-          margin: 5,
-          borderBottomWidth: 0.5,
+          borderBottomWidth: 1,
+          paddingVertical: 10,
           borderColor: Colors.charlieDark,
         }}>
         <Text
           style={{
-            padding: 10,
             color: Colors.alpha,
-            fontFamily: fonts.acuminI,
-            fontSize: responsiveFontSize(2),
+            fontFamily: fonts.acuminR,
+            fontSize: responsiveFontSize(2.1),
+            paddingVertical: 10,
           }}>
-          {' '}
           {value}
         </Text>
         <Text
           style={{
-            padding: 10,
-            paddingTop: 0,
+            paddingBottom: 10,
             color: Colors.charlieDark,
-            fontFamily: fonts.acuminBI,
-            fontSize: responsiveFontSize(2),
+            fontFamily: fonts.acuminB,
+            fontSize: responsiveFontSize(1.8),
           }}>
-          @{title}
+          {title}
         </Text>
       </View>
+    );
+  };
+
+  const ProfileButton = ({
+    iconName,
+    iconType,
+    label,
+    blue,
+    green,
+    red,
+    loading = false,
+    onPressHandler,
+  }) => {
+    return (
+      <TouchableHighlight
+        style={{
+          width: '40%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+          borderRadius: 5,
+          backgroundColor:
+            (green && 'rgba(130, 224, 170,0.4)') ||
+            (blue && 'rgba(133, 193, 233,0.4)') ||
+            (red && 'rgba(236, 112, 99,0.4)'),
+        }}
+        disabled={loading}
+        underlayColor={
+          (green && 'rgba(130, 224, 170,0.7)') ||
+          (blue && 'rgba(133, 193, 233,0.7)') ||
+          (red && 'rgba(236, 112, 99,0.7)')
+        }
+        onPress={onPressHandler}>
+        {!loading ? (
+          <>
+            <Icon
+              name={iconName}
+              type={iconType}
+              style={{
+                color:
+                  (green && '#196F3D') ||
+                  (blue && Colors.bravo) ||
+                  (red && '#E21717'),
+                fontSize: responsiveFontSize(3.8),
+              }}
+            />
+            <Text
+              style={[
+                styles.listButton,
+                {
+                  color:
+                    (green && '#196F3D') ||
+                    (blue && Colors.bravo) ||
+                    (red && '#E21717'),
+                },
+              ]}>
+              {label}
+            </Text>
+          </>
+        ) : (
+          <ActivityIndicator
+            color={
+              (green && '#196F3D') ||
+              (blue && Colors.bravo) ||
+              (red && '#E21717')
+            }
+            size="large"
+          />
+        )}
+      </TouchableHighlight>
     );
   };
 
@@ -162,393 +236,183 @@ const ProfileScreen = ({
           </View>
         </View>
       </ImageBackground>
+
       <View
         style={{
-          width: '100%',
-          height: responsiveHeight(10),
-          justifyContent: 'space-evenly',
-          alignItems: 'center',
-          marginVertical: 8,
-          flexDirection: 'row',
+          marginHorizontal: 20,
         }}>
-        {!data ? (
+        <View style={styles.profileButtonBar}>
+          {checkfriend === 'me' && (
+            <>
+              <ProfileButton
+                iconName={'groups'}
+                iconType={'MaterialIcons'}
+                label={` Friends (${friend.length})`}
+                onPressHandler={() => console.log('hello')}
+                green
+              />
+              <ProfileButton
+                iconName={'message'}
+                iconType={'MaterialIcons'}
+                label={`Chats`}
+                onPressHandler={() => navigation.navigate('ChatScreen')}
+                blue
+              />
+            </>
+          )}
           <>
-            <TouchableHighlight
-              style={{
-                width: '40%',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
-                backgroundColor: 'rgba(130, 224, 170,0.3)',
-              }}
-              underlayColor="rgba(130, 224, 170,0.6)"
-              onPress={() => console.log('ok')}>
+            {checkfriend === 'friends' && (
               <>
-                <Icon
-                  name="groups"
-                  type="MaterialIcons"
-                  style={{
-                    color: '#196F3D',
-                    fontSize: responsiveFontSize(3.8),
-                  }}
+                <ProfileButton
+                  iconName={'message'}
+                  iconType={'MaterialIcons'}
+                  label={`Message`}
+                  onPressHandler={() => navigation.navigate('ChatScreen')}
+                  blue
                 />
-                <Text
-                  style={[
-                    styles.listButton,
-                    {
-                      color: '#196F3D',
-                    },
-                  ]}>
-                  Friends ({friend.length})
-                </Text>
+                <ProfileButton
+                  iconName={'account-off'}
+                  iconType={'MaterialCommunityIcons'}
+                  label={'Unfriend'}
+                  onPressHandler={() => declineRequest(docId)}
+                  loading={friends.declineLoading}
+                  red
+                />
               </>
-            </TouchableHighlight>
-            <TouchableHighlight
-              style={{
-                width: '40%',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100%',
-                backgroundColor: 'rgba(133, 193, 233,0.4)',
-              }}
-              underlayColor="rgba(133, 193, 233,0.7)"
-              onPress={() => navigation.navigate('ChatScreen')}>
+            )}
+            {checkfriend === 'sent' && (
               <>
-                <Icon
-                  name="message"
-                  type="MaterialIcons"
-                  style={{
-                    color: Colors.bravo,
-                    fontSize: responsiveFontSize(3.5),
-                  }}
+                <ProfileButton
+                  iconName={'account-clock'}
+                  iconType={'MaterialCommunityIcons'}
+                  label={'Pending'}
+                  onPressHandler={() => console.log('ok')}
+                  loading={false}
+                  green
                 />
-                <Text
-                  style={[
-                    styles.listButton,
-                    {
-                      color: Colors.bravo,
-                    },
-                  ]}>
-                  Chats
-                </Text>
+                <ProfileButton
+                  iconName={'account-off'}
+                  iconType={'MaterialCommunityIcons'}
+                  label={'Unsent'}
+                  onPressHandler={() => declineRequest(docId)}
+                  loading={friends.declineLoading}
+                  red
+                />
               </>
-            </TouchableHighlight>
+            )}
+            {checkfriend === 'receive' && (
+              <>
+                <ProfileButton
+                  iconName={'checkmark-sharp'}
+                  iconType={'Ionicons'}
+                  label={'Accept'}
+                  onPressHandler={() => acceptRequest(docId)}
+                  loading={friends.acceptLoading}
+                  green
+                />
+                <ProfileButton
+                  iconName={'close'}
+                  iconType={'Ionicons'}
+                  label={'Decline'}
+                  onPressHandler={() => declineRequest(docId)}
+                  loading={friends.declineLoading}
+                  red
+                />
+              </>
+            )}
+            {checkfriend === 'unknown' && (
+              <ProfileButton
+                iconName={'account-plus'}
+                iconType={'MaterialCommunityIcons'}
+                label={'Send Request'}
+                onPressHandler={() =>
+                  sendRequest({
+                    user: {
+                      uid: userId,
+                      userName: profileData.userName,
+                      status: 'receive',
+                    },
+                    friend: {
+                      uid: dataState.uid,
+                      userName: dataState.userName,
+                      status: 'sent',
+                    },
+                  })
+                }
+                green
+                loading={friends.requestLoading}
+              />
+            )}
           </>
-        ) : (
-          <>
-            <View
-              style={{
-                width: '100%',
-                justifyContent: 'space-evenly',
-                alignItems: 'center',
-                flexDirection: 'row',
-                height: '100%',
-              }}>
-              {checkfriend === 'friends' && (
-                <>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(133, 193, 233,0.4)',
-                    }}
-                    underlayColor="rgba(133, 193, 233,0.7)"
-                    onPress={() => navigation.navigate('ChatScreen')}>
-                    <>
-                      <Icon
-                        name="message"
-                        type="MaterialIcons"
-                        style={{
-                          color: Colors.bravo,
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: Colors.bravo,
-                          },
-                        ]}>
-                        Message
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(236, 112, 99,0.3)',
-                    }}
-                    underlayColor="rgba(236, 112, 99,0.6)"
-                    onPress={() => declineRequest(docId)}>
-                    <>
-                      <Icon
-                        name="account-off"
-                        type="MaterialCommunityIcons"
-                        style={{
-                          color: '#E21717',
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: '#E21717',
-                          },
-                        ]}>
-                        Unfriend
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                </>
-              )}
-              {checkfriend === 'sent' && (
-                <>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(130, 224, 170,0.3)',
-                    }}
-                    underlayColor="rgba(130, 224, 170,0.6)"
-                    onPress={() => console.log('ok')}>
-                    <>
-                      <Icon
-                        name="account-clock"
-                        type="MaterialCommunityIcons"
-                        style={{
-                          color: '#196F3D',
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: '#196F3D',
-                          },
-                        ]}>
-                        Pending
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(236, 112, 99,0.3)',
-                    }}
-                    underlayColor="rgba(236, 112, 99,0.6)"
-                    onPress={() => declineRequest(docId)}>
-                    <>
-                      <Icon
-                        name="account-off"
-                        type="MaterialCommunityIcons"
-                        style={{
-                          color: '#E21717',
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: '#E21717',
-                          },
-                        ]}>
-                        Unsent
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                </>
-              )}
-              {checkfriend === 'receive' && (
-                <>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(130, 224, 170,0.3)',
-                    }}
-                    underlayColor="rgba(130, 224, 170,0.6)"
-                    onPress={() => acceptRequest(docId)}>
-                    <>
-                      <Icon
-                        name="checkmark-sharp"
-                        style={{
-                          color: '#196F3D',
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: '#196F3D',
-                          },
-                        ]}>
-                        Accept
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(236, 112, 99,0.3)',
-                    }}
-                    underlayColor="rgba(236, 112, 99,0.6)"
-                    onPress={() => declineRequest(docId)}>
-                    <>
-                      <Icon
-                        name="close"
-                        style={{
-                          color: '#E21717',
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: '#E21717',
-                          },
-                        ]}>
-                        Decline
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                </>
-              )}
-              {checkfriend === 'unknown' && (
-                <>
-                  <TouchableHighlight
-                    style={{
-                      width: '40%',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      backgroundColor: 'rgba(130, 224, 170,0.3)',
-                    }}
-                    underlayColor="rgba(130, 224, 170,0.6)"
-                    onPress={() =>
-                      sendRequest({
-                        user: {
-                          uid: userId,
-                          userName: profileData.userName,
-                          status: 'receive',
-                        },
-                        friend: {
-                          uid: dataState.uid,
-                          userName: dataState.userName,
-                          status: 'sent',
-                        },
-                      })
-                    }>
-                    <>
-                      <Icon
-                        name="account-plus"
-                        type="MaterialCommunityIcons"
-                        style={{
-                          color: '#196F3D',
-                          fontSize: responsiveFontSize(3.5),
-                        }}
-                      />
-                      <Text
-                        style={[
-                          styles.listButton,
-                          {
-                            color: '#196F3D',
-                          },
-                        ]}>
-                        Send Request
-                      </Text>
-                    </>
-                  </TouchableHighlight>
-                </>
-              )}
-            </View>
-          </>
-        )}
-      </View>
-      <Text
-        style={{
-          marginHorizontal: 10,
-          padding: 10,
-          fontFamily: fonts.exot,
-          fontSize: responsiveFontSize(2.4),
-          color: Colors.alpha,
-        }}>
-        Profile{' '}
+        </View>
         <Text
           style={{
-            marginHorizontal: 20,
             fontFamily: fonts.exot,
-            color: Colors.bravo,
             fontSize: responsiveFontSize(2.4),
+            color: Colors.alpha,
+            borderBottomWidth: 0.5,
+            borderColor: Colors.charlieDark,
+            paddingVertical: 10,
           }}>
-          Info
-        </Text>
-      </Text>
-      <InfoBar value={dataState.bio} title={'Bio'} />
-      <InfoBar value={dataState.dateOfBirth} title={'Date Of Birth'} />
-      <InfoBar value={dataState.gender} title={'Gender'} />
-
-      {data === false && (
-        <TouchableOpacity
-          style={{
-            margin: 5,
-            padding: 5,
-            alignSelf: 'center',
-          }}
-          onPress={() => {
-            Alert.alert(
-              'Warning',
-              'Are you sure want to Sign-Out',
-              [
-                {
-                  text: 'Cancel',
-                  style: 'cancel',
-                },
-                {text: 'Sign-Out', onPress: () => signOut()},
-              ],
-              {cancelable: false},
-            );
-          }}>
-          <Icon
-            name="power-off"
-            type="FontAwesome"
-            style={{
-              color: 'red',
-              fontSize: responsiveFontSize(5),
-              textAlign: 'center',
-            }}
-          />
+          Profile{' '}
           <Text
             style={{
-              color: 'red',
-              fontSize: responsiveFontSize(1.3),
-              fontFamily: fonts.acuminB,
-              textAlign: 'center',
+              fontFamily: fonts.exot,
+              color: Colors.bravo,
+              fontSize: responsiveFontSize(2.4),
             }}>
-            Sign Out
+            Info . . .
           </Text>
-        </TouchableOpacity>
-      )}
+        </Text>
+
+        <InfoBar value={dataState.bio} title={'Bio'} />
+        <InfoBar value={dataState.dateOfBirth} title={'Date Of Birth'} />
+        <InfoBar value={dataState.gender} title={'Gender'} />
+        {checkfriend === 'me' && (
+          <InfoBar value={userEmail} title={'Registered Email'} />
+        )}
+        {data === false && (
+          <TouchableOpacity
+            style={{
+              margin: 5,
+              padding: 5,
+              alignSelf: 'center',
+            }}
+            onPress={() => {
+              Alert.alert(
+                'Warning',
+                'Are you sure want to Sign-Out',
+                [
+                  {
+                    text: 'Cancel',
+                    style: 'cancel',
+                  },
+                  {text: 'Sign-Out', onPress: () => signOut()},
+                ],
+                {cancelable: false},
+              );
+            }}>
+            <Icon
+              name="power-off"
+              type="FontAwesome"
+              style={{
+                color: 'red',
+                fontSize: responsiveFontSize(5),
+                textAlign: 'center',
+              }}
+            />
+            <Text
+              style={{
+                color: 'red',
+                fontSize: responsiveFontSize(1.3),
+                fontFamily: fonts.acuminB,
+                textAlign: 'center',
+              }}>
+              Sign Out
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </ScrollView>
   );
 };
@@ -563,9 +427,19 @@ const mapDispatchToProps = {
 const mapStateToProps = (state) => ({
   profileData: state.auth.profileData,
   userId: state.auth.user.uid,
-  friends: state.friends.friendsList,
+  userEmail: state.auth.user.email,
+  friends: state.friends,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileScreen);
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  profileButtonBar: {
+    width: '100%',
+    height: responsiveHeight(10),
+    justifyContent: 'space-evenly',
+    alignItems: 'center',
+    marginVertical: 8,
+    flexDirection: 'row',
+  },
+});
