@@ -1,30 +1,29 @@
-import {Badge, Icon, Thumbnail, Fab, Button} from 'native-base';
 import React, {useState} from 'react';
 import {
   StyleSheet,
   TouchableHighlight,
   View,
   Text,
+  ScrollView,
+  TextInput,
   ActivityIndicator,
-  FlatList,
 } from 'react-native';
+
+import {Icon, Thumbnail, Fab} from 'native-base';
+
+import {acceptRequest, declineRequest} from '../store/actions/friendsActions';
+import {connect} from 'react-redux';
+
+import firestore from '@react-native-firebase/firestore';
+
+import ProfileButton from '../Components/ProfileButton';
+
 import {
   responsiveFontSize,
   responsiveHeight,
 } from 'react-native-responsive-dimensions';
 import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
-import {connect} from 'react-redux';
-import {
-  acceptRequest,
-  declineRequest,
-  fetchFriendsList,
-  fetchProifleUrl,
-  sendRequest,
-} from '../store/actions/friendsActions';
-
-import firestore from '@react-native-firebase/firestore';
-import {TextInput} from 'react-native-gesture-handler';
 
 const FriendsScreen = ({
   navigation,
@@ -35,14 +34,17 @@ const FriendsScreen = ({
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState(false);
   const [search, setSearch] = useState('');
-  const friends = friendState.filter(
+
+  const friends = friendState.friendsList.filter(
     (value) => value.list.status === 'friends',
   );
 
-  const receive = friendState.filter(
+  const receive = friendState.friendsList.filter(
     (value) => value.list.status === 'receive',
   );
-  const sent = friendState.filter((value) => value.list.status === 'sent');
+  const sent = friendState.friendsList.filter(
+    (value) => value.list.status === 'sent',
+  );
 
   const fetchUserData = async (uuid) => {
     setLoading(true);
@@ -58,27 +60,23 @@ const FriendsScreen = ({
     setLoading(false);
   };
 
-  const RequestListCard = ({data}) => {
-    const dataState = data.list;
-    const filteredByKey = 'ss';
+  const FriendsCard = ({friends, sent, receive, itemData}) => {
     return (
       <TouchableHighlight
-        underlayColor="rgba(214, 234, 248,1)"
-        onPress={() => {
-          fetchUserData(data.list.uid);
-        }}
+        onPress={() => fetchUserData(itemData.list.uid)}
         style={{
           flexDirection: 'row',
-          margin: 10,
-          marginTop: 3,
+          margin: 5,
+          marginTop: 2.5,
           elevation: 2,
           backgroundColor: Colors.charlie,
           height: responsiveHeight(10),
-        }}>
+        }}
+        underlayColor="rgba(174, 214, 241,1)">
         <>
           <Thumbnail
             source={{
-              uri: data.profileUrl,
+              uri: itemData.profileUrl,
             }}
             style={{
               width: '20%',
@@ -89,7 +87,7 @@ const FriendsScreen = ({
           />
           <View
             style={{
-              width: '40%',
+              width: friends ? '60%' : '40%',
               height: '100%',
             }}>
             <Text
@@ -101,7 +99,7 @@ const FriendsScreen = ({
                 fontSize: responsiveFontSize(1.8),
                 color: Colors.alpha,
               }}>
-              {dataState.userName}
+              {itemData.list.userName}
               {'\n'}
               <Text
                 style={{
@@ -112,272 +110,63 @@ const FriendsScreen = ({
               </Text>
             </Text>
           </View>
-
-          <TouchableHighlight
-            style={{
-              width: '20%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(130, 224, 170,0.3)',
-            }}
-            underlayColor="rgba(130, 224, 170,0.6)"
-            onPress={() => acceptRequest(data.uid)}>
+          {sent && (
             <>
-              <Icon
-                name="checkmark-sharp"
-                style={{
-                  color: '#196F3D',
-                  fontSize: responsiveFontSize(3.5),
-                }}
+              <ProfileButton
+                iconName={'account-clock'}
+                iconType={'MaterialCommunityIcons'}
+                label={'Pending'}
+                onPressHandler={() => console.log('ok')}
+                loading={false}
+                green
+                small
               />
-              <Text
-                style={[
-                  styles.listButton,
-                  {
-                    color: '#196F3D',
-                  },
-                ]}>
-                Accept
-              </Text>
+              <ProfileButton
+                iconName={'account-off'}
+                iconType={'MaterialCommunityIcons'}
+                label={'Unsent'}
+                onPressHandler={() => declineRequest(itemData.uid)}
+                loading={friendState.declineLoading}
+                red
+                small
+              />
             </>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={{
-              width: '20%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              backgroundColor: 'rgba(236, 112, 99,0.3)',
-            }}
-            underlayColor="rgba(236, 112, 99,0.6)"
-            onPress={() => declineRequest(data.uid)}>
+          )}
+          {friends && (
             <>
-              <Icon
-                name="close"
-                style={{
-                  color: '#E21717',
-                  fontSize: responsiveFontSize(3.5),
-                }}
+              <ProfileButton
+                iconName={'message'}
+                iconType={'MaterialIcons'}
+                label={'Message'}
+                onPressHandler={() => navigation.navigate('ChatScreen')}
+                loading={false}
+                blue
+                small
               />
-              <Text
-                style={[
-                  styles.listButton,
-                  {
-                    color: '#E21717',
-                  },
-                ]}>
-                Decline
-              </Text>
             </>
-          </TouchableHighlight>
-        </>
-      </TouchableHighlight>
-    );
-  };
-  const SendListCard = ({data}) => {
-    const dataState = data.list;
-
-    return (
-      <TouchableHighlight
-        underlayColor="rgba(214, 234, 248,1)"
-        onPress={() => {
-          fetchUserData(data.list.uid);
-        }}
-        style={{
-          flexDirection: 'row',
-          margin: 10,
-          marginTop: 3,
-          elevation: 2,
-          backgroundColor: Colors.charlie,
-          height: responsiveHeight(10),
-        }}>
-        <>
-          <Thumbnail
-            source={{
-              uri: data.profileUrl,
-            }}
-            style={{
-              width: '20%',
-              height: '100%',
-            }}
-            large
-            square
-          />
-          <View
-            style={{
-              width: '40%',
-              height: '100%',
-            }}>
-            <Text
-              style={{
-                textAlignVertical: 'center',
-                paddingHorizontal: 5,
-                height: '100%',
-                fontFamily: fonts.acuminB,
-                fontSize: responsiveFontSize(1.8),
-                color: Colors.alpha,
-              }}>
-              {dataState.userName}
-              {'\n'}
-              <Text
-                style={{
-                  fontSize: responsiveFontSize(1.5),
-                  color: Colors.charlieDark,
-                }}>
-                {'@username'}
-              </Text>
-            </Text>
-          </View>
-
-          <TouchableHighlight
-            style={{
-              width: '20%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              backgroundColor: 'rgba(130, 224, 170,0.3)',
-            }}
-            underlayColor="rgba(130, 224, 170,0.6)"
-            onPress={() => console.log('ok')}>
+          )}
+          {receive && (
             <>
-              <Icon
-                name="account-clock"
-                type="MaterialCommunityIcons"
-                style={{
-                  color: '#196F3D',
-                  fontSize: responsiveFontSize(3.5),
-                }}
+              <ProfileButton
+                iconName={'checkmark-sharp'}
+                iconType={'Ionicons'}
+                label={'Accept'}
+                onPressHandler={() => acceptRequest(itemData.uid)}
+                loading={friendState.acceptLoading}
+                green
+                small
               />
-              <Text
-                style={[
-                  styles.listButton,
-                  {
-                    color: '#196F3D',
-                  },
-                ]}>
-                Pending
-              </Text>
-            </>
-          </TouchableHighlight>
-          <TouchableHighlight
-            style={{
-              width: '20%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              backgroundColor: 'rgba(236, 112, 99,0.3)',
-            }}
-            underlayColor="rgba(236, 112, 99,0.6)"
-            onPress={() => declineRequest(data.uid)}>
-            <>
-              <Icon
-                name="close"
-                style={{
-                  color: '#E21717',
-                  fontSize: responsiveFontSize(3.5),
-                }}
+              <ProfileButton
+                iconName={'close'}
+                iconType={'Ionicons'}
+                label={'Decline'}
+                onPressHandler={() => declineRequest(itemData.uid)}
+                loading={friendState.declineLoading}
+                red
+                small
               />
-              <Text
-                style={[
-                  styles.listButton,
-                  {
-                    color: '#E21717',
-                  },
-                ]}>
-                Unsent
-              </Text>
             </>
-          </TouchableHighlight>
-        </>
-      </TouchableHighlight>
-    );
-  };
-
-  const FriendListCard = ({data}) => {
-    const dataState = data.list;
-
-    return (
-      <TouchableHighlight
-        underlayColor="rgba(214, 234, 248,1)"
-        onPress={() => {
-          fetchUserData(data.list.uid);
-        }}
-        style={{
-          flexDirection: 'row',
-          margin: 10,
-          marginTop: 3,
-          elevation: 2,
-          backgroundColor: Colors.charlie,
-          height: responsiveHeight(10),
-        }}>
-        <>
-          <Thumbnail
-            source={{
-              uri: data.profileUrl,
-            }}
-            style={{
-              width: '20%',
-              height: '100%',
-            }}
-            large
-            square
-          />
-          <View
-            style={{
-              width: '60%',
-              height: '100%',
-            }}>
-            <Text
-              style={{
-                textAlignVertical: 'center',
-                paddingHorizontal: 5,
-                height: '100%',
-                fontFamily: fonts.acuminB,
-                fontSize: responsiveFontSize(1.8),
-                color: Colors.alpha,
-              }}>
-              {dataState.userName}
-              {'\n'}
-              <Text
-                style={{
-                  fontSize: responsiveFontSize(1.5),
-                  color: Colors.charlieDark,
-                }}>
-                {'@username'}
-              </Text>
-            </Text>
-          </View>
-
-          <TouchableHighlight
-            style={{
-              width: '20%',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: '100%',
-              backgroundColor: 'rgba(133, 193, 233,0.4)',
-            }}
-            underlayColor="rgba(133, 193, 233,0.7)"
-            onPress={() => navigation.navigate('ChatScreen')}>
-            <>
-              <Icon
-                name="message"
-                type="MaterialIcons"
-                style={{
-                  color: Colors.bravo,
-                  fontSize: responsiveFontSize(3.5),
-                }}
-              />
-              <Text
-                style={[
-                  styles.listButton,
-                  {
-                    color: Colors.bravo,
-                  },
-                ]}>
-                Message
-              </Text>
-            </>
-          </TouchableHighlight>
+          )}
         </>
       </TouchableHighlight>
     );
@@ -395,9 +184,8 @@ const FriendsScreen = ({
           alignItems: 'center',
           flexDirection: 'row',
           height: responsiveHeight(7),
-          margin: 10,
+          margin: 5,
           marginTop: 3,
-          //  width: '100%',
           justifyContent: 'space-between',
         }}>
         <View
@@ -407,9 +195,9 @@ const FriendsScreen = ({
             borderColor: Colors.bravoDark,
             alignItems: 'center',
             flexDirection: 'row',
-            width: '75%',
-            marginLeft: 5,
-            height: '85%',
+            width: '80%',
+            alignSelf: 'center',
+            height: '70%',
           }}>
           <Icon
             name="search"
@@ -424,13 +212,25 @@ const FriendsScreen = ({
             placeholder="Search Friends"
             style={{
               width: '70%',
+              height: '100%',
+              padding: 0,
+              fontSize: responsiveFontSize(1.8),
+              fontFamily: fonts.acuminR,
             }}
             value={search}
             onChangeText={(text) => setSearch(text)}
-            editable={!mode}
+            placeholderTextColor={Colors.charlieDark}
+            onTouchStart={() => {
+              if (mode) {
+                setMode(false);
+              }
+            }}
+            value={search}
+            onChangeText={(text) => setSearch(text)}
           />
           <Icon
             name="close-circle"
+            onPress={() => setSearch('')}
             style={{
               color: Colors.bravo,
               fontSize: responsiveFontSize(3),
@@ -441,11 +241,10 @@ const FriendsScreen = ({
         </View>
         <TouchableHighlight
           style={{
-            width: '20%',
+            width: '18%',
             justifyContent: 'center',
             alignItems: 'center',
             height: '100%',
-            backgroundColor: 'rgba(133, 193, 233,0.4)',
           }}
           underlayColor="rgba(133, 193, 233,0.7)"
           onPress={() => setMode(!mode)}>
@@ -474,7 +273,7 @@ const FriendsScreen = ({
               type="MaterialCommunityIcons"
               style={{
                 color: Colors.bravo,
-                fontSize: responsiveFontSize(3.2),
+                fontSize: responsiveFontSize(3),
               }}
             />
             <Text
@@ -482,10 +281,11 @@ const FriendsScreen = ({
                 styles.listButton,
                 {
                   color: Colors.bravo,
-                  fontSize: responsiveFontSize(1.3),
+                  fontSize: responsiveFontSize(1.2),
+                  textAlign: 'center',
                 },
               ]}>
-              {mode ? 'Go Back' : 'Requests'}
+              {mode ? 'Go Back' : 'Friend\nRequests'}
             </Text>
           </>
         </TouchableHighlight>
@@ -494,7 +294,7 @@ const FriendsScreen = ({
         style={{
           color: Colors.alpha,
           fontFamily: fonts.acuminB,
-          marginHorizontal: 10,
+          marginHorizontal: 5,
         }}>
         {mode
           ? `Friend Requests (${receive.length})`
@@ -519,59 +319,50 @@ const FriendsScreen = ({
           </Text>
         </View>
       ) : (
-        <View>
-          {mode &&
-            (receive.length ? (
-              <FlatList
-                data={receive}
-                keyExtractor={(item) => item.uid}
-                renderItem={({item}) => <RequestListCard data={item} />}
-              />
-            ) : (
-              <View
-                style={{
-                  margin: 10,
-                  height: responsiveHeight(9),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
+        <ScrollView>
+          {mode ? (
+            <>
+              {receive.length > 0 ? (
+                receive.map((value) => (
+                  <FriendsCard receive key={value.uid} itemData={value} />
+                ))
+              ) : (
                 <Text
                   style={{
-                    padding: 10,
-                    fontFamily: fonts.acuminB,
-                    fontSize: responsiveFontSize(1.8),
+                    flex: 1,
+                    height: responsiveHeight(10),
+                    textAlign: 'center',
+                    textAlignVertical: 'center',
                     color: Colors.alpha,
+                    fontFamily: fonts.acuminB,
                   }}>
-                  You Have No Friends Requests!
+                  You Have No Friend Requests
                 </Text>
-              </View>
-            ))}
-          {mode && sent.length > 0 && (
-            <>
-              <Text
-                style={{
-                  color: Colors.alpha,
-                  fontFamily: fonts.acuminB,
-                  marginHorizontal: 10,
-                }}>
-                {`Your Pending Sent Requests (${receive.length})`}
-              </Text>
-              <FlatList
-                data={sent}
-                keyExtractor={(item) => item.uid}
-                renderItem={({item}) => <SendListCard data={item} />}
-              />
+              )}
+              {sent.length > 0 && (
+                <>
+                  <Text
+                    style={{
+                      color: Colors.alpha,
+                      fontFamily: fonts.acuminB,
+                      marginHorizontal: 10,
+                    }}>
+                    Your pending Sent Request ({sent.length})
+                  </Text>
+                  {sent.map((value) => (
+                    <FriendsCard sent key={value.uid} itemData={value} />
+                  ))}
+                </>
+              )}
             </>
+          ) : (
+            friends
+              .filter((value) => value.list.userName.includes(search))
+              .map((value) => (
+                <FriendsCard friends key={value.uid} itemData={value} />
+              ))
           )}
-
-          {!mode && (
-            <FlatList
-              data={friends}
-              keyExtractor={(item) => item.uid}
-              renderItem={({item}) => <FriendListCard data={item} />}
-            />
-          )}
-        </View>
+        </ScrollView>
       )}
       <Fab
         position="bottomRight"
@@ -586,7 +377,7 @@ const FriendsScreen = ({
 };
 
 const mapStateToProps = (state) => ({
-  friendState: state.friends.friendsList,
+  friendState: state.friends,
 });
 
 const mapDispatchToProps = {

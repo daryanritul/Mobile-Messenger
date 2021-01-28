@@ -9,7 +9,6 @@ import {
   View,
   Alert,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 
 import {Icon} from 'native-base';
@@ -28,8 +27,10 @@ import {
   acceptRequest,
   declineRequest,
   sendRequest,
-  signOut,
 } from '../store/actions/friendsActions';
+import {signOut} from '../store/actions/authActions';
+
+import ProfileButton from '../Components/ProfileButton';
 
 const ProfileScreen = ({
   signOut,
@@ -121,76 +122,6 @@ const ProfileScreen = ({
     );
   };
 
-  const ProfileButton = ({
-    iconName,
-    iconType,
-    label,
-    blue,
-    green,
-    red,
-    loading = false,
-    onPressHandler,
-  }) => {
-    return (
-      <TouchableHighlight
-        style={{
-          width: '40%',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100%',
-          borderRadius: 5,
-          backgroundColor:
-            (green && 'rgba(130, 224, 170,0.4)') ||
-            (blue && 'rgba(133, 193, 233,0.4)') ||
-            (red && 'rgba(236, 112, 99,0.4)'),
-        }}
-        disabled={loading}
-        underlayColor={
-          (green && 'rgba(130, 224, 170,0.7)') ||
-          (blue && 'rgba(133, 193, 233,0.7)') ||
-          (red && 'rgba(236, 112, 99,0.7)')
-        }
-        onPress={onPressHandler}>
-        {!loading ? (
-          <>
-            <Icon
-              name={iconName}
-              type={iconType}
-              style={{
-                color:
-                  (green && '#196F3D') ||
-                  (blue && Colors.bravo) ||
-                  (red && '#E21717'),
-                fontSize: responsiveFontSize(3.8),
-              }}
-            />
-            <Text
-              style={[
-                styles.listButton,
-                {
-                  color:
-                    (green && '#196F3D') ||
-                    (blue && Colors.bravo) ||
-                    (red && '#E21717'),
-                },
-              ]}>
-              {label}
-            </Text>
-          </>
-        ) : (
-          <ActivityIndicator
-            color={
-              (green && '#196F3D') ||
-              (blue && Colors.bravo) ||
-              (red && '#E21717')
-            }
-            size="large"
-          />
-        )}
-      </TouchableHighlight>
-    );
-  };
-
   return (
     <ScrollView
       style={{
@@ -245,8 +176,8 @@ const ProfileScreen = ({
           {checkfriend === 'me' && (
             <>
               <ProfileButton
-                iconName={'groups'}
-                iconType={'MaterialIcons'}
+                iconName={'account-group'}
+                iconType={'MaterialCommunityIcons'}
                 label={` Friends (${friend.length})`}
                 onPressHandler={() => console.log('hello')}
                 green
