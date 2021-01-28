@@ -126,7 +126,7 @@ const FriendsScreen = ({
                 iconType={'MaterialCommunityIcons'}
                 label={'Unsent'}
                 onPressHandler={() => declineRequest(itemData.uid)}
-                loading={friendState.declineLoading}
+                loading={false}
                 red
                 small
               />
@@ -152,7 +152,7 @@ const FriendsScreen = ({
                 iconType={'Ionicons'}
                 label={'Accept'}
                 onPressHandler={() => acceptRequest(itemData.uid)}
-                loading={friendState.acceptLoading}
+                loading={false}
                 green
                 small
               />
@@ -161,7 +161,7 @@ const FriendsScreen = ({
                 iconType={'Ionicons'}
                 label={'Decline'}
                 onPressHandler={() => declineRequest(itemData.uid)}
-                loading={friendState.declineLoading}
+                loading={false}
                 red
                 small
               />

@@ -9,11 +9,16 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ChatScreen from '../screens/ChatScreen';
 import SearchScreen from '../screens/SearchScreen';
 import {Pressable, Text} from 'react-native';
-import {Icon} from 'native-base';
+import {Icon, Thumbnail} from 'native-base';
 import UpdateProfileScreen from '../screens/UpdateProfileScreen';
 import {Colors} from '../Constants/Colors';
 import {responsiveFontSize} from 'react-native-responsive-dimensions';
 import {fonts} from '../Constants/Fonts';
+import {connect} from 'react-redux';
+import {
+  TouchableHighlight,
+  TouchableOpacity,
+} from 'react-native-gesture-handler';
 
 const Stack = createStackNavigator();
 const TopTabs = createMaterialTopTabNavigator();
@@ -57,7 +62,7 @@ const AppTabs = () => {
   );
 };
 
-const AppNavigator = () => {
+const AppNavigator = ({profileUrl}) => {
   return (
     <Stack.Navigator
       screenOptions={() => ({
@@ -78,21 +83,27 @@ const AppNavigator = () => {
         options={({route, navigation}) => ({
           title: 'Mobile Messenger',
 
-          headerRight: () => (
-            <Pressable
+          headerRight: ({}) => (
+            <TouchableOpacity
+              style={{
+                backgroundColor: Colors.charlie,
+                borderRadius: 50,
+                margin: 10,
+                padding: 2,
+              }}
               onPress={() =>
                 navigation.navigate('ProfileScreen', {
                   data: false,
                 })
               }>
-              <Icon
-                name="account-box"
-                type="MaterialIcons"
-                style={{
-                  paddingHorizontal: 10,
+              <Thumbnail
+                source={{
+                  uri: profileUrl,
                 }}
+                small
+                style={{}}
               />
-            </Pressable>
+            </TouchableOpacity>
           ),
         })}
       />
@@ -123,4 +134,8 @@ const AppNavigator = () => {
   );
 };
 
-export default AppNavigator;
+const mapStateToProps = (state) => ({
+  profileUrl: state.auth.profileData.profileUrl,
+});
+
+export default connect(mapStateToProps, null)(AppNavigator);
