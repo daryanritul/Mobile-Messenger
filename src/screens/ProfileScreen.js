@@ -31,6 +31,7 @@ import {
 import {signOut} from '../store/actions/authActions';
 
 import ProfileButton from '../Components/ProfileButton';
+import {fetchChats} from '../store/actions/chatActions';
 
 const ProfileScreen = ({
   signOut,
@@ -43,6 +44,8 @@ const ProfileScreen = ({
   userId,
   friends,
   userEmail,
+  fetchChats,
+  chatList,
 }) => {
   const {data} = route.params;
 
@@ -90,6 +93,14 @@ const ProfileScreen = ({
         ),
       });
   }, [navigation]);
+
+  const userChatHandler = async (data) => {
+    if (!chatList.filter((chats) => chats.chatId === data.uid).length)
+      await fetchChats(data.uid, data.status);
+    navigation.navigate('ChatScreen', {
+      chatId: data.uid,
+    });
+  };
 
   const InfoBar = ({value, title}) => {
     return (
@@ -186,7 +197,7 @@ const ProfileScreen = ({
                 iconName={'message'}
                 iconType={'MaterialIcons'}
                 label={`Chats`}
-                onPressHandler={() => navigation.navigate('ChatScreen')}
+                onPressHandler={() => console.log('')}
                 blue
               />
             </>
@@ -198,7 +209,7 @@ const ProfileScreen = ({
                   iconName={'message'}
                   iconType={'MaterialIcons'}
                   label={`Message`}
-                  onPressHandler={() => navigation.navigate('ChatScreen')}
+                  onPressHandler={() => userChatHandler(checkList[0])}
                   blue
                 />
                 <ProfileButton
@@ -353,6 +364,7 @@ const mapDispatchToProps = {
   sendRequest: (data) => sendRequest(data),
   declineRequest: (uid1, uid2) => declineRequest(uid1, uid2),
   acceptRequest: (uid1, uid2) => acceptRequest(uid1, uid2),
+  fetchChats: (uid, action) => fetchChats(uid, action),
 };
 
 const mapStateToProps = (state) => ({
@@ -360,6 +372,7 @@ const mapStateToProps = (state) => ({
   userId: state.auth.user.uid,
   userEmail: state.auth.user.email,
   friends: state.friends,
+  chatList: state.chats.chatList,
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileScreen);

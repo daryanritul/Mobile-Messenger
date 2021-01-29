@@ -90,6 +90,7 @@ const AppNavigator = ({profileUrl}) => {
                 borderRadius: 50,
                 margin: 10,
                 padding: 2,
+                elevation: 10,
               }}
               onPress={() =>
                 navigation.navigate('ProfileScreen', {
@@ -107,7 +108,13 @@ const AppNavigator = ({profileUrl}) => {
           ),
         })}
       />
-      <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen
+        name="ChatScreen"
+        component={ChatScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name="ProfileScreen"
         component={ProfileScreen}

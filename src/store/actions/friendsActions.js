@@ -71,6 +71,7 @@ export const fetchFriendsList = (uid) => async (dispatch) => {
   await firestore()
     .collection('friends')
     .where('friendId', 'array-contains', uid)
+
     .onSnapshot(async (documentSnapshot) => {
       const friendList = [];
       await Promise.all(

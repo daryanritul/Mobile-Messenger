@@ -13,8 +13,7 @@ import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
 import {fetchChats} from '../store/actions/chatActions';
 
-const HomeScreen = ({navigation, myFriends, chatList}) => {
-  console.log({myFriends});
+const HomeScreen = ({navigation, myFriends, chatList, fetchChats}) => {
   const userChatHandler = async (data) => {
     if (!chatList.filter((chats) => chats.chatId === data.uid).length)
       await fetchChats(data.uid, data.status);
@@ -98,6 +97,10 @@ const mapStateToProps = (state) => ({
   chatList: state.chats.chatList,
 });
 
-export default connect(mapStateToProps, null)(HomeScreen);
+const mapDispatchToProps = {
+  fetchChats: (uid, action) => fetchChats(uid, action),
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
 
 const styles = StyleSheet.create({});
