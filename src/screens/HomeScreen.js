@@ -1,27 +1,103 @@
-import React from 'react';
-import {Button, StyleSheet, Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet, TouchableHighlight, View, Text} from 'react-native';
 
-const HomeScreen = ({navigation}) => {
+import {Icon, Thumbnail, Fab} from 'native-base';
+
+import {connect} from 'react-redux';
+
+import {
+  responsiveFontSize,
+  responsiveHeight,
+} from 'react-native-responsive-dimensions';
+import {Colors} from '../Constants/Colors';
+import {fonts} from '../Constants/Fonts';
+import {fetchChats} from '../store/actions/chatActions';
+
+const HomeScreen = ({navigation, myFriends, chatList}) => {
+  console.log({myFriends});
+  const userChatHandler = async (data) => {
+    if (!chatList.filter((chats) => chats.chatId === data.uid).length)
+      await fetchChats(data.uid, data.status);
+    navigation.navigate('ChatScreen', {
+      chatId: data.uid,
+    });
+  };
+
+  const FriendsCard = ({itemData}) => {
+    return (
+      <TouchableHighlight
+        onPress={() => userChatHandler(itemData)}
+        style={{
+          flexDirection: 'row',
+          margin: 5,
+          marginTop: 2.5,
+          elevation: 2,
+          backgroundColor: Colors.charlie,
+          height: responsiveHeight(11.5),
+        }}
+        underlayColor="rgba(174, 214, 241,1)">
+        <>
+          <Thumbnail
+            source={{
+              uri: itemData.profileUrl,
+            }}
+            style={{
+              width: '23%',
+              height: '100%',
+            }}
+            large
+            square
+          />
+          <View
+            style={{
+              width: '77%',
+              height: '100%',
+            }}>
+            <Text
+              style={{
+                textAlignVertical: 'center',
+                paddingHorizontal: 5,
+                height: '100%',
+                fontFamily: fonts.acuminB,
+                fontSize: responsiveFontSize(1.8),
+                color: Colors.alpha,
+              }}>
+              {itemData.list.userName}
+              {'\n'}
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(1.5),
+                  color: Colors.charlieDark,
+                }}>
+                {'@username'}
+              </Text>
+            </Text>
+          </View>
+        </>
+      </TouchableHighlight>
+    );
+  };
+
   return (
     <View
       style={{
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: Colors.charlie,
       }}>
-      <Text>HomeScreen</Text>
-      <Button
-        title="Go to Chats"
-        onPress={() => navigation.navigate('ChatScreen')}
-      />
-      <Button
-        title="Go to Search"
-        onPress={() => navigation.navigate('SearchScreen')}
-      />
+      {myFriends.map((friends) => (
+        <FriendsCard itemData={friends} key={friends.uid} />
+      ))}
     </View>
   );
 };
 
-export default HomeScreen;
+const mapStateToProps = (state) => ({
+  myFriends: state.friends.friendsList.filter(
+    (friend) => friend.status === true,
+  ),
+  chatList: state.chats.chatList,
+});
+
+export default connect(mapStateToProps, null)(HomeScreen);
 
 const styles = StyleSheet.create({});

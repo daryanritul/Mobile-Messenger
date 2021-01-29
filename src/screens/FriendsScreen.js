@@ -24,17 +24,19 @@ import {
 } from 'react-native-responsive-dimensions';
 import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
+import {fetchChats} from '../store/actions/chatActions';
 
 const FriendsScreen = ({
   navigation,
   friendState,
   declineRequest,
   acceptRequest,
+  fetchChats,
+  chatList,
 }) => {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState(false);
   const [search, setSearch] = useState('');
-
   const friends = friendState.friendsList.filter(
     (value) => value.list.status === 'friends',
   );
@@ -58,6 +60,14 @@ const FriendsScreen = ({
         });
       });
     setLoading(false);
+  };
+
+  const userChatHandler = async (data) => {
+    if (!chatList.filter((chats) => chats.chatId === data.uid).length)
+      await fetchChats(data.uid, data.status);
+    navigation.navigate('ChatScreen', {
+      chatId: data.uid,
+    });
   };
 
   const FriendsCard = ({friends, sent, receive, itemData}) => {
@@ -138,11 +148,7 @@ const FriendsScreen = ({
                 iconName={'message'}
                 iconType={'MaterialIcons'}
                 label={'Message'}
-                onPressHandler={() =>
-                  navigation.navigate('ChatScreen', {
-                    data: itemData.uid,
-                  })
-                }
+                onPressHandler={() => userChatHandler(itemData)}
                 loading={false}
                 blue
                 small
@@ -382,11 +388,13 @@ const FriendsScreen = ({
 
 const mapStateToProps = (state) => ({
   friendState: state.friends,
+  chatList: state.chats.chatList,
 });
 
 const mapDispatchToProps = {
   declineRequest: (uid1, uid2) => declineRequest(uid1, uid2),
   acceptRequest: (uid1, uid2) => acceptRequest(uid1, uid2),
+  fetchChats: (uid, action) => fetchChats(uid, action),
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FriendsScreen);

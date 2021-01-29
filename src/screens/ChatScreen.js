@@ -16,13 +16,18 @@ const ChatScreen = ({
   fetchChats,
   chatList,
 }) => {
-  const frnd = friendsList[0];
-  const {data} = route.params;
-  console.log(JSON.stringify(chatList.chatList));
+  const {chatId} = route.params;
+  //  console.log(JSON.stringify(chatList.chatList));
+
+  const myChats = chatList.chatList.filter((chats) => chats.chatId === chatId);
+  console.log(chatId);
+  const friendData = friendsList.filter((friend) => friend.uid === chatId);
+  console.log(friendData);
+  console.log(myChats);
   const sendMessage = async () => {
     const refrence = await firestore()
       .collection('friends')
-      .doc(data)
+      .doc(chatId)
       .collection('messages')
       .doc();
 
@@ -35,10 +40,6 @@ const ChatScreen = ({
       })
       .then(() => 'its gone');
   };
-
-  useEffect(() => {
-    fetchChats(data);
-  }, []);
 
   return (
     <View
