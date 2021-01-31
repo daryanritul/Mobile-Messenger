@@ -2,12 +2,6 @@ import * as actions from './actions.types';
 
 import firestore from '@react-native-firebase/firestore';
 
-import firebase from '@react-native-firebase/app';
-
-import auth from '@react-native-firebase/auth';
-
-const userId = auth().currentUser ? auth().currentUser.uid : '';
-
 import storage from '@react-native-firebase/storage';
 
 export const setFriends = (data) => async (dispatch) => {
@@ -77,6 +71,7 @@ export const fetchFriendsList = (uid) => async (dispatch) => {
   await firestore()
     .collection('friends')
     .where('friendId', 'array-contains', uid)
+
     .onSnapshot(async (documentSnapshot) => {
       const friendList = [];
       await Promise.all(
@@ -96,6 +91,7 @@ export const fetchFriendsList = (uid) => async (dispatch) => {
                 : friend._data.friend1,
             uid: friend._data.uid,
             profileUrl: url,
+            status: friend._data.status,
           });
         }),
       );

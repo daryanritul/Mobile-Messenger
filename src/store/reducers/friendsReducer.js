@@ -6,6 +6,7 @@ const initialState = {
   requestLoading: false,
   loading: false,
   friendsList: [],
+  chatList: [],
 };
 
 const cleanUp = (state) => {
