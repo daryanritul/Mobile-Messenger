@@ -3,7 +3,6 @@ import * as actions from './actions.types';
 import firestore from '@react-native-firebase/firestore';
 
 export const fetchChats = (uid, action) => async (dispatch) => {
-  console.log(action);
   if (!action) {
     await firestore()
       .collection('friends')
@@ -14,7 +13,7 @@ export const fetchChats = (uid, action) => async (dispatch) => {
     console.log('i did this');
   }
   console.log(' i fetch chats');
-  await firestore()
+  const subsciber = await firestore()
     .collection('friends')
     .doc(uid)
     .collection('messages')
@@ -33,5 +32,17 @@ export const fetchChats = (uid, action) => async (dispatch) => {
           },
         }),
       );
+    });
+  return () => subsciber();
+};
+
+export const markAsSeen = (uid, chatId) => async (dispatch) => {
+  await firestore()
+    .collection('friends')
+    .doc(uid)
+    .collection('messages')
+    .doc(chatId)
+    .update({
+      seen: true,
     });
 };

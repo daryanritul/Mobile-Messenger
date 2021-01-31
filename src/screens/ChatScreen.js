@@ -1,18 +1,18 @@
-import {Button, Icon, List, Thumbnail} from 'native-base';
+import {Button, Icon, Item, List, Thumbnail} from 'native-base';
 import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   TouchableHighlight,
+  ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {Colors} from '../Constants/Colors';
 
 import firestore from '@react-native-firebase/firestore';
-import {fetchMessages} from '../store/actions/friendsActions';
-import {fetchChats} from '../store/actions/chatActions';
+import {fetchChats, markAsSeen} from '../store/actions/chatActions';
 import {
   responsiveFontSize,
   responsiveHeight,
@@ -25,17 +25,16 @@ const ChatScreen = ({
   navigation,
   route,
   user,
-  fetchChats,
+  markAsSeen,
   chatList,
 }) => {
   const {chatId} = route.params;
 
   const [text, setText] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const myChats = chatList.chatList.filter((chats) => chats.chatId === chatId);
 
   const friendData = friendsList.filter((friend) => friend.uid === chatId)[0];
-
   const sendMessage = async (text) => {
     const refrence = await firestore()
       .collection('friends')
@@ -49,38 +48,40 @@ const ChatScreen = ({
         sentBy: user.uid,
         text: text,
         uid: refrence.id,
+        seen: false,
       })
       .then(() => setText(''));
+  };
+
+  const fetchUserData = async () => {
+    setLoading(true);
+    await firestore()
+      .collection('users')
+      .doc(friendData.list.uid)
+      .get()
+      .then((dataSnapshot) => {
+        navigation.navigate('ProfileScreen', {
+          data: dataSnapshot._data,
+        });
+      });
+    setLoading(false);
   };
 
   const renderChats = ({item}) => {
     const position = item.sentBy === user.uid ? false : true;
 
+    if (!item.seen && position) {
+      markAsSeen(myChats[0].chatId, item.uid);
+    }
+
     return (
       <View
         style={{
-          flexDirection: 'row',
+          flexDirection: 'column',
           alignSelf: position ? 'flex-start' : 'flex-end',
         }}>
-        {!position && (
-          <Text
-            style={{
-              textAlignVertical: 'bottom',
-              paddingVertical: 0,
-              color: Colors.charlieDark,
-              fontSize: responsiveFontSize(1.4),
-              fontFamily: fonts.acuminR,
-            }}>
-            {item.sentAt.toDate().getHours() > 12
-              ? item.sentAt.toDate().getHours() - 12
-              : item.sentAt.toDate().getHours()}
-            :{item.sentAt.toDate().getMinutes()}{' '}
-            {item.sentAt.toDate().getHours() > 12 ? 'pm' : 'am'}
-          </Text>
-        )}
         <View
           style={{
-            padding: 10,
             marginRight: position ? 2 : 8,
             marginLeft: position ? 8 : 2,
             marginVertical: 2,
@@ -89,34 +90,44 @@ const ChatScreen = ({
             borderBottomRightRadius: position ? 10 : 0,
             backgroundColor: !position ? '#D0D3D4' : Colors.alpha,
             width: 'auto',
+            maxWidth: '75%',
             elevation: 2,
           }}>
           <Text
             onPress={() => console.log(item.sentAt)}
             style={{
+              padding: 10,
+              paddingBottom: position ? 10 : 0,
               color: !position ? Colors.alpha : Colors.charlie,
               fontFamily: fonts.openSansR,
               fontSize: responsiveFontSize(1.8),
             }}>
             {item.text}
           </Text>
+          {!position && (
+            <Icon
+              name="ellipse-sharp"
+              style={{
+                textAlign: 'right',
+                fontSize: responsiveFontSize(1.4),
+                color: item.seen ? Colors.bravo : Colors.charlie,
+              }}
+            />
+          )}
         </View>
-        {position && (
-          <Text
-            style={{
-              textAlignVertical: 'bottom',
-              paddingVertical: 3,
-              color: Colors.charlieDark,
-              fontSize: responsiveFontSize(1.4),
-              fontFamily: fonts.acuminR,
-            }}>
-            {item.sentAt.toDate().getHours() > 12
-              ? item.sentAt.toDate().getHours() - 12
-              : item.sentAt.toDate().getHours()}
-            :{item.sentAt.toDate().getMinutes()}{' '}
-            {item.sentAt.toDate().getHours() > 12 ? 'pm' : 'am'}
-          </Text>
-        )}
+        <Text
+          style={{
+            textAlign: position ? 'right' : 'left',
+            color: Colors.charlieDark,
+            fontSize: responsiveFontSize(1.3),
+            fontFamily: fonts.acuminR,
+          }}>
+          {item.sentAt.toDate().getHours() > 12
+            ? item.sentAt.toDate().getHours() - 12
+            : item.sentAt.toDate().getHours()}
+          :{item.sentAt.toDate().getMinutes()}{' '}
+          {item.sentAt.toDate().getHours() > 12 ? 'pm' : 'am'}
+        </Text>
       </View>
     );
   };
@@ -125,7 +136,7 @@ const ChatScreen = ({
     <View
       style={{
         flex: 1,
-        backgroundColor: Colors.charlie,
+        backgroundColor: '#D6EAF8',
       }}>
       <View //headerBar Start
         style={{
@@ -166,7 +177,8 @@ const ChatScreen = ({
             height: '100%',
             justifyContent: 'center',
           }}
-          onPress={() => console.log('helll0')}>
+          onPress={() => fetchUserData()}
+          disabled={loading}>
           <Text
             style={{
               fontSize: responsiveFontSize(2.8),
@@ -202,31 +214,49 @@ const ChatScreen = ({
           flex: 1,
           backgroundColor: Colors.charlie,
         }}>
-        <FlatList
-          data={myChats[0] ? myChats[0].messages : []}
-          inverted={-1}
-          keyExtractor={(item) => item.uid}
-          renderItem={renderChats}
-        />
+        {loading && (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <ActivityIndicator size="large" color={Colors.bravo} />
+            <Text
+              style={{
+                padding: 10,
+                fontFamily: fonts.acuminB,
+                fontSize: responsiveFontSize(1.8),
+                color: Colors.alpha,
+              }}>
+              Redirecting. . .
+            </Text>
+          </View>
+        )}
+        {!loading && (
+          <FlatList
+            data={myChats[0] ? myChats[0].messages : []}
+            inverted={-1}
+            keyExtractor={(item) => item.uid}
+            renderItem={renderChats}
+          />
+        )}
       </View>
       <View
         style={{
-          backgroundColor: Colors.charlie,
+          backgroundColor: Colors.alpha,
           alignItems: 'center',
           flexDirection: 'row',
-          height: responsiveHeight(9),
-          padding: 2,
+          height: responsiveHeight(8),
           justifyContent: 'space-between',
         }}>
         <View
           style={{
-            borderRadius: 10,
-            backgroundColor: Colors.alpha,
             alignItems: 'center',
             flexDirection: 'row',
-            width: '80%',
-
+            width: '85%',
             alignSelf: 'center',
+            height: '100%',
           }}>
           <Icon
             name="camera"
@@ -235,9 +265,11 @@ const ChatScreen = ({
             style={{
               color: Colors.bravo,
               color: Colors.charlie,
-              fontSize: responsiveFontSize(3),
+              fontSize: responsiveFontSize(3.8),
               width: '15%',
               textAlign: 'center',
+              textAlignVertical: 'center',
+              height: '100%',
             }}
           />
 
@@ -249,9 +281,11 @@ const ChatScreen = ({
               fontSize: responsiveFontSize(1.8),
               fontFamily: fonts.acuminR,
               color: Colors.charlie,
+              backgroundColor: 'rgba(255,255,255  ,0.08)',
             }}
             placeholderTextColor={Colors.charlieDark}
             multiline
+            scrollEnabled={true}
             numberOfLines={2}
             value={text}
             onChangeText={(text) => setText(text)}
@@ -259,22 +293,22 @@ const ChatScreen = ({
           <Icon
             name="image"
             style={{
+              color: Colors.bravo,
               color: Colors.charlie,
-              fontSize: responsiveFontSize(3),
+              fontSize: responsiveFontSize(3.8),
               width: '15%',
               textAlign: 'center',
+              textAlignVertical: 'center',
+              height: '100%',
             }}
           />
         </View>
-        <TouchableHighlight
+        <TouchableOpacity
           style={{
-            width: '18%',
+            width: '15%',
             justifyContent: 'center',
-            alignItems: 'center',
             height: '100%',
-            borderRadius: 10,
           }}
-          underlayColor="rgba(133, 193, 233,0.7)"
           onPress={() => {
             if (text) {
               sendMessage(text);
@@ -285,12 +319,14 @@ const ChatScreen = ({
             <Icon
               name="send"
               style={{
-                color: Colors.bravo,
+                color: Colors.charlie,
                 fontSize: responsiveFontSize(3),
+                textAlign: 'center',
+                textAlignVertical: 'center',
               }}
             />
           </>
-        </TouchableHighlight>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -303,7 +339,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = {
-  fetchChats: (uid) => fetchChats(uid),
+  markAsSeen: (uid, chatId) => markAsSeen(uid, chatId),
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChatScreen);
