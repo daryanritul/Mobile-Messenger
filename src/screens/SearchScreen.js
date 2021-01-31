@@ -34,7 +34,6 @@ const SearchScreen = ({
   removeSearchHistory,
   searchHistory,
 }) => {
-  console.log(searchHistory);
   const [search, setSearch] = useState('');
   const [result, setResult] = useState();
   const [searchStatus, setSearchStatus] = useState(false);
@@ -63,12 +62,25 @@ const SearchScreen = ({
           const storageRef = await storage().ref(
             'users/profilePicture/' + dataSnapshot._docs[0]._data.uid,
           );
-          const url = await storageRef.getDownloadURL();
-          setResult({
-            uid: dataSnapshot._docs[0]._data.uid,
-            userName: dataSnapshot._docs[0]._data.userName,
-            profileUrl: url,
-          });
+          await storageRef
+            .getDownloadURL()
+            .then((url) => {
+              setResult({
+                uid: dataSnapshot._docs[0]._data.uid,
+                userName: dataSnapshot._docs[0]._data.userName,
+                profileUrl: url,
+              });
+            })
+            .catch((err) => {
+              if (err.code === 'storage/object-not-found') {
+                setResult({
+                  uid: dataSnapshot._docs[0]._data.uid,
+                  userName: dataSnapshot._docs[0]._data.userName,
+                  profileUrl:
+                    'https://firebasestorage.googleapis.com/v0/b/mobile-messenger-b9264.appspot.com/o/users%2FprofilePicture%2FmaleAvatar.jpg?alt=media&token=ded1a45d-392d-4bc1-ae68-6f4f49a0dde6',
+                });
+              }
+            });
         } else {
           setResult(false);
           console.log('notFound');

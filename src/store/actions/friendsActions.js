@@ -83,16 +83,33 @@ export const fetchFriendsList = (uid) => async (dispatch) => {
           const storageRef = await storage().ref(
             'users/profilePicture/' + uuid,
           );
-          const url = await storageRef.getDownloadURL();
-          friendList.push({
-            list:
-              friend._data.friend1.uid === uid
-                ? friend._data.friend2
-                : friend._data.friend1,
-            uid: friend._data.uid,
-            profileUrl: url,
-            status: friend._data.status,
-          });
+          await storageRef
+            .getDownloadURL()
+            .then((url) => {
+              friendList.push({
+                list:
+                  friend._data.friend1.uid === uid
+                    ? friend._data.friend2
+                    : friend._data.friend1,
+                uid: friend._data.uid,
+                profileUrl: url,
+                status: friend._data.status,
+              });
+            })
+            .catch((err) => {
+              if (err.code === 'storage/object-not-found') {
+                friendList.push({
+                  list:
+                    friend._data.friend1.uid === uid
+                      ? friend._data.friend2
+                      : friend._data.friend1,
+                  uid: friend._data.uid,
+                  profileUrl:
+                    'https://firebasestorage.googleapis.com/v0/b/mobile-messenger-b9264.appspot.com/o/users%2FprofilePicture%2FmaleAvatar.jpg?alt=media&token=ded1a45d-392d-4bc1-ae68-6f4f49a0dde6',
+                  status: friend._data.status,
+                });
+              }
+            });
         }),
       );
 
