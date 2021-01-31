@@ -279,8 +279,8 @@ const FriendsScreen = ({
               </Text>
             )}
             <Icon
-              name={!mode ? 'account-plus' : 'step-backward-2'}
-              type="MaterialCommunityIcons"
+              name={!mode ? 'group' : 'arrow-back'}
+              type="MaterialIcons"
               style={{
                 color: Colors.bravo,
                 fontSize: responsiveFontSize(3),
@@ -380,7 +380,14 @@ const FriendsScreen = ({
           backgroundColor: Colors.bravo,
         }}
         onPress={() => navigation.navigate('SearchScreen')}>
-        <Icon name="search" />
+        <Icon
+          name={'account-plus'}
+          type="MaterialCommunityIcons"
+          style={{
+            color: Colors.charlie,
+            fontSize: responsiveFontSize(3.5),
+          }}
+        />
       </Fab>
     </View>
   );

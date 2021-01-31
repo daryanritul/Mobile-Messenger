@@ -13,7 +13,7 @@ import {Colors} from '../Constants/Colors';
 import {fonts} from '../Constants/Fonts';
 import {fetchChats} from '../store/actions/chatActions';
 
-const HomeScreen = ({navigation, myFriends, chatList, fetchChats}) => {
+const HomeScreen = ({navigation, myFriends, chatList, fetchChats, userId}) => {
   const userChatHandler = async (data) => {
     if (!chatList.filter((chats) => chats.chatId === data.uid).length)
       await fetchChats(data.uid, data.status);
@@ -23,6 +23,15 @@ const HomeScreen = ({navigation, myFriends, chatList, fetchChats}) => {
   };
 
   const FriendsCard = ({itemData}) => {
+    const friendChats = chatList.filter(
+      (chats) => chats.chatId === itemData.uid,
+    )[0];
+    const unReadMsg = friendChats
+      ? friendChats.messages.filter(
+          (value) => value.seen === false && value.sentBy !== userId,
+        ).length
+      : 0;
+
     return (
       <TouchableHighlight
         onPress={() => userChatHandler(itemData)}
@@ -49,7 +58,7 @@ const HomeScreen = ({navigation, myFriends, chatList, fetchChats}) => {
           />
           <View
             style={{
-              width: '77%',
+              width: unReadMsg > 0 ? '62%' : '77%',
               height: '100%',
             }}>
             <Text
@@ -72,6 +81,35 @@ const HomeScreen = ({navigation, myFriends, chatList, fetchChats}) => {
               </Text>
             </Text>
           </View>
+          {unReadMsg > 0 && (
+            <View
+              style={{
+                width: '15%',
+                height: '100%',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(130, 224, 170,0.7)',
+              }}>
+              <Text
+                style={{
+                  color: '#196F3D',
+                  paddingHorizontal: 5,
+                  fontFamily: fonts.acuminB,
+                  fontSize: responsiveFontSize(1.8),
+                }}>
+                {unReadMsg}
+              </Text>
+              <Text
+                style={{
+                  fontSize: responsiveFontSize(1.2),
+                  textAlign: 'center',
+                  fontFamily: fonts.acuminB,
+                  color: '#196F3D',
+                }}>
+                {'New\nMessage'}
+              </Text>
+            </View>
+          )}
         </>
       </TouchableHighlight>
     );
@@ -95,6 +133,7 @@ const mapStateToProps = (state) => ({
     (friend) => friend.status === true,
   ),
   chatList: state.chats.chatList,
+  userId: state.auth.user.uid,
 });
 
 const mapDispatchToProps = {
