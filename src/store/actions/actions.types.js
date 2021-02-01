@@ -37,3 +37,5 @@ export const FETCH_PROFILE_URL = 'FETCH_PROFILE_URL';
 export const FRIENDS_CLEAN_UP = 'FRIENDS_CLEAN_UP';
 
 export const SET_CHAT = 'SET_CHAT';
+
+export const CHAT_CLEAN_UP = 'CHAT_CLEAN_UP';

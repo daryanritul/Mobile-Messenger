@@ -24,10 +24,17 @@ const setChat = (state, payload) => {
   };
 };
 
+const chatCleanUp = (state) => {
+  return intialState;
+};
+
 export default (state = intialState, {type, payload}) => {
   switch (type) {
     case actions.SET_CHAT:
       return setChat(state, payload);
+
+    case actions.CHAT_CLEAN_UP:
+      return chatCleanUp(state);
 
     default:
       return state;

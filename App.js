@@ -10,6 +10,7 @@ import {Colors} from './src/Constants/Colors';
 
 import {connect, useDispatch} from 'react-redux';
 import {
+  CHAT_CLEAN_UP,
   CLEAN_UP,
   FRIENDS_CLEAN_UP,
   SET_USER,
@@ -54,6 +55,9 @@ const App = ({authState, friendState, fetchFriendsList}) => {
       });
       dispatch({
         type: CLEAN_UP,
+      });
+      dispatch({
+        type: CHAT_CLEAN_UP,
       });
     }
   };
